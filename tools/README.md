@@ -2,7 +2,7 @@
 
 ## DRAGEN germline
 
-|  Details | |
+|  Item | Details |
 |---|---|
 |  Description | Perform alignment and variant calling on germline WGS data. |
 | Official documentation | https://sapac.illumina.com/products/by-type/informatics-products/dragen-bio-it-platform.html |
@@ -51,7 +51,7 @@ Note: The GIS team are launching DRAGEN as a workflow from the [Illumina Connect
 
 ## Cyrius
 
-|  Details | |
+|  Item | Details |
 |---|---|
 |  Description | WGS-based CYP2D6 genotyper. |
 | Official documentation | https://github.com/Illumina/Cyrius |
@@ -89,7 +89,7 @@ ls -l | grep -v '^total' | awk '$2>1 {print $NF}' | xargs rm
 
 ## aldy
 
-|  Details | |
+|  Item | Details |
 |---|---|
 |  Description | A quick and nifty tool for genotyping and phasing popular pharmacogenes. |
 | Official documentation | https://github.com/0xTCG/aldy |
