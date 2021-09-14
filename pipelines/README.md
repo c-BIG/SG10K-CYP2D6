@@ -2,7 +2,7 @@
 
 ## call_haplotypes
 
-A Nextflow pipeline to launch Cyrius and aldy from an input CRAM file. Depends on third-party tools defined under `/SG10K-CYP2D6/tools/`.
+A Nextflow pipeline to launch Cyrius and aldy from an input CRAM file. Requires nextflow and third-party tools defined under `/SG10K-CYP2D6/tools/`.
 
 **Launch instructions**
 
