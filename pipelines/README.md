@@ -33,7 +33,7 @@ nextflow run $REPO_ROOT/pipelines/call_haplotypes/main.nf --help
 
 ```bash
 REPO_ROOT="/path/to/this/repo"
-DATA_ROOT="/path/to/shared/s3/"
+DATA_ROOT="/path/to/shared/s3"
 LAUNCH_DIR="./test_20210914"
 
 cd $LAUNCH_DIR
