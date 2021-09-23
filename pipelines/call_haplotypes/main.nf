@@ -182,8 +182,7 @@ process ECHO {
     publishDir "${final_params.publish_dir}/echo", mode: "copy"
 
     input:
-    file(cram)
-    tuple val(reference_id), file(reference_tuple)
+    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
 
     output:
     path "*", emit: echo_outputs
@@ -207,7 +206,12 @@ final_params = check_params(params, workflow)
 cram_ch = channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
-    // .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
+    .map{ row -> tuple(
+        file(row).getBaseName(),
+        file(row.trim()), file(row.trim() + ".crai"),
+        file(params.reference), file(params.reference + ".fai")
+    )}
+
 cram_ch.view()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
@@ -226,7 +230,7 @@ reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 workflow {
     // CYRIUS(cram_ch, reference_ch)
     // ALDY(cram_ch, reference_ch)
-    ECHO(cram_ch.out.flatten(), reference_ch)
+    ECHO(cram_ch.out)
 }
 
 // triggers
