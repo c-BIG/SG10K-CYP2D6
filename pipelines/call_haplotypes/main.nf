@@ -182,15 +182,15 @@ process ECHO {
     publishDir "${final_params.publish_dir}/echo", mode: "copy"
 
     input:
-    tuple file(cram)
-    tuple val(reference_id), file(reference_tuple)
+    file(cram)
+    // tuple val(reference_id), file(reference_tuple)
 
     output:
     path "*", emit: echo_outputs
 
     script:
     """
-    echo "${cram},${reference_id},${reference_tuple[0]},${reference_tuple[1]}" > echo.txt
+    echo "${cram}" > echo.txt
     """
 }
 
@@ -226,7 +226,7 @@ reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 workflow {
     // CYRIUS(cram_ch, reference_ch)
     // ALDY(cram_ch, reference_ch)
-    ECHO(cram_ch, reference_ch)
+    ECHO(cram_ch)
 }
 
 // triggers
