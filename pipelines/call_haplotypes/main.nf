@@ -171,7 +171,7 @@ process ALDY {
         --gene CYP2D6 \
         --reference ${reference[0]} \
         --output ${sample_id}.aldy \
-        ${cram[0]}
+        ${cram}
     """
 }
 
