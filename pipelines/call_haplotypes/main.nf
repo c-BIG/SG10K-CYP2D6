@@ -178,18 +178,18 @@ process ALDY {
 }
 
 process ECHO {
-    tag "echo"
-    publishDir "${final_params.publish_dir}/echo", mode: "copy"
+    tag "${sample_id}"
+    publishDir "${final_params.publish_dir}/${sample_id}", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
+    tuple val(sample_id), file(cram_tuple)
 
     output:
     path "*", emit: echo_outputs
 
     script:
     """
-    echo "${cram}" > echo.txt
+    echo "${cram_tuple[0]}" > echo.txt
     """
 }
 
@@ -203,17 +203,15 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
+reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+
 cram_ch = channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
-    .map{ row -> tuple(
-        file(row).getBaseName(),
-        file(row.trim()), file(row.trim() + ".crai"),
-        file(params.reference), file(params.reference + ".fai")
-    )}
-
+    .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
+    .combine(reference_ch)
 cram_ch.view()
-// reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+
 
 // tmp = file(final_params.cram_list)
 //         .readLines()
