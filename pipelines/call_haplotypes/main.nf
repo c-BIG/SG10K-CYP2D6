@@ -158,7 +158,7 @@ process ALDY {
     publishDir "${final_params.publish_dir}/aldy", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram), file(crai)
+    set val(sample_id), file(cram), file(cram_index)
     tuple val(reference_id), file(reference)
 
     output:
@@ -190,7 +190,6 @@ final_params = check_params(params, workflow)
 cram_ch = Channel.fromPath(params.cram_list)
                  .splitText()
                  .map{ [ file(it).getBaseName(), it, it.trim()+".crai"  ] }
-                 .groupTuple()
 cram_ch.view()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 reference_ch.view()
