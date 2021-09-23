@@ -95,6 +95,9 @@ def check_params(Map params, nextflow.script.WorkflowMetadata workflow) {
     // TODO
     // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
     // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
+    final_params.cram_pattern = Channel.fromPath(params.cram_list)
+                .splitText()
+                .map{ it -> it.take(it.lastIndexOf('.')) + "{.cram,.cram.crai}" }
 
     ref_basename = final_params.reference.take(final_params.reference.lastIndexOf('.'))
     ref_extension = final_params.reference.substring(final_params.reference.lastIndexOf("."))
@@ -185,17 +188,8 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
-cram_ch = Channel.fromPath(params.cram_list)
-                     .splitText()
-                    //  .map { file(it) }
-                    .map{ it -> it.take(it.lastIndexOf('.')) + "{.cram,.cram.crai}" }
+cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 cram_ch.view()
-
-    // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
-    // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
-
-
-// cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
 // main
