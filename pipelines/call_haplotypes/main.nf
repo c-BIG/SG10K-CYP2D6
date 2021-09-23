@@ -189,8 +189,8 @@ final_params = check_params(params, workflow)
 
 cram_ch = Channel.fromPath(params.cram_list)
                  .splitText()
-                 .map{ tuple( file(it).getBaseName(), [ it, it.trim()+".crai" ] ) }
-cram_ch.view()
+                 .map{ [ file(it).getBaseName(), it, it.trim()+".crai"  ] }
+                 .groupTuple()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 reference_ch.view()
 
