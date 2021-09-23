@@ -187,32 +187,26 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
+cram_ch = channel
+    .fromPath(params.cram_list)
+    .splitText(by: 1)
+    .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
+cram_ch.view()
+reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+
 // tmp = file(final_params.cram_list)
 //         .readLines()
 //         .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
 
 
-
 // cram_ch = channel.fromFilePairs(final_params.cram_patterns)
     // cram_ch.view()
-
-
-
-// main
-workflow {
-
-cram_ch = channel
-    .fromPath(params.cram_list)
-    .splitText(by: 1)
-
-cram_ch.view()
-
-    reference_ch = channel.fromFilePairs(final_params.reference_pattern)
-
 
     // .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
     // .view()
 
+// main
+workflow {
     // CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
 }
