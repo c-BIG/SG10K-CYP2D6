@@ -205,6 +205,8 @@ cram_ch = channel
 
 // main
 workflow {
+    println(" Starting workflow ")
+    sleep(10)
     CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
 }
