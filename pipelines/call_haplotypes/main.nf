@@ -225,7 +225,7 @@ reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 // main
 workflow {
     // CYRIUS(cram_ch, reference_ch)
-    ALDY(cram_ch, reference_ch)
+    // ALDY(cram_ch, reference_ch)
     ECHO(cram_ch, reference_ch)
 }
 
