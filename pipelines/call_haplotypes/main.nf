@@ -158,7 +158,7 @@ process ALDY {
     publishDir "${final_params.publish_dir}/aldy", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram), file(cram_index)
+    tuple val(sample_id), file(cram)
     tuple val(reference_id), file(reference)
 
     output:
@@ -171,7 +171,7 @@ process ALDY {
         --gene CYP2D6 \
         --reference ${reference[0]} \
         --output ${sample_id}.aldy \
-        ${cram}
+        ${cram[0]}
     """
 }
 
@@ -190,6 +190,7 @@ final_params = check_params(params, workflow)
 cram_pattern = file(params.cram_list)
     .readLines()
     .each { println it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
+
 cram_ch = channel.fromFilePairs(cram_pattern)
 cram_ch.view()
 
@@ -208,7 +209,7 @@ reference_ch.view()
 // main
 workflow {
     // CYRIUS(cram_ch, reference_ch)
-    // ALDY(cram_ch, reference_ch)
+    ALDY(cram_ch, reference_ch)
 }
 
 // triggers
