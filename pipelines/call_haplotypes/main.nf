@@ -213,7 +213,7 @@ cram_ch = channel
     )}
 
 cram_ch.view()
-reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+// reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
 // tmp = file(final_params.cram_list)
 //         .readLines()
