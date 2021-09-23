@@ -155,16 +155,16 @@ process CYRIUS {
 }
 
 process ALDY {
-    tag "${sample_id}"
+    tag "sample_id"
     container = "aldy:3.3"
-    publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
+    publishDir "${final_params.publish_dir}/sample_id/aldy", mode: "copy"
 
     input:
     tuple file(cram)
     tuple val(reference_id), file(reference)
 
     output:
-    path "${sample_id}.*", emit: aldy_outputs
+    path "sample_id.*", emit: aldy_outputs
 
     script:
     """
@@ -172,7 +172,7 @@ process ALDY {
         --profile illumina \
         --gene CYP2D6 \
         --reference ${reference[0]} \
-        --output ${sample_id}.aldy \
+        --output sample_id.aldy \
         ${cram}
     """
 }
