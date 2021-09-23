@@ -196,16 +196,20 @@ final_params = check_params(params, workflow)
 // cram_ch = channel.fromFilePairs(final_params.cram_patterns)
     // cram_ch.view()
 
-cram_ch = channel
-    .fromPath(params.cram_list)
-    .splitText(by: 1)
-    
-    reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
 
 // main
 workflow {
-    println(" Starting workflow ")
+
+cram_ch = channel
+    .fromPath(params.cram_list)
+    .splitText(by: 1)
+
+cram_ch.view()
+
+    reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+
+
     // .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
     // .view()
 
