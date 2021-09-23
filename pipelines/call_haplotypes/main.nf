@@ -187,10 +187,10 @@ final_params = check_params(params, workflow)
 // input channels
 // cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 
-cram_patterns = file(params.cram_list)
+file(params.cram_list)
     .readLines()
     .each { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-    .flatten()
+    .set( cram_patterns )
 
 println(cram_patterns.getClass())
 println(cram_patterns)
