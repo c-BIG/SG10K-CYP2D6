@@ -155,25 +155,42 @@ process CYRIUS {
 }
 
 process ALDY {
-    tag "sample_id"
+    tag "${sample_id}"
     container = "aldy:3.3"
-    publishDir "${final_params.publish_dir}/sample_id/aldy", mode: "copy"
+    publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
 
     input:
-    file(cram)
-    tuple val(reference_id), file(reference)
+    tuple val(sample_id), file(cram_tuple)
+    tuple val(reference_id), file(reference_tuple)
 
     output:
-    path "sample_id.*", emit: aldy_outputs
+    path "${sample_id}.*", emit: aldy_outputs
 
     script:
     """
     aldy genotype \
         --profile illumina \
         --gene CYP2D6 \
-        --reference ${reference[0]} \
-        --output sample_id.aldy \
-        ${cram}
+        --reference ${reference_tuple[0]} \
+        --output ${sample_id}.aldy \
+        ${cram_tuple[0]}
+    """
+}
+
+process ECHO {
+    tag "${sample_id}"
+    publishDir "${final_params.publish_dir}/${sample_id}/echo", mode: "copy"
+
+    input:
+    tuple val(sample_id), file(cram_tuple)
+    tuple val(reference_id), file(reference_tuple)
+
+    output:
+    path "${sample_id}.*", emit: aldy_outputs
+
+    script:
+    """
+    echo "$sample_id,${cram_tuple[0]},${cram_tuple[1]},$reference_id,${reference_tuple[0]},${reference_tuple[1]}" > $sample_id.txt
     """
 }
 
@@ -209,6 +226,7 @@ reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 workflow {
     // CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
+    ECHO(cram_ch, reference_ch)
 }
 
 // triggers
