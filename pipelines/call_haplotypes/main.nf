@@ -191,6 +191,8 @@ cram_patterns = file(params.cram_list)
     .readLines()
     .each { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
 
+cram_patterns.view()
+
 cram_ch = channel.fromFilePairs(cram_patterns)
 cram_ch.view()
 
