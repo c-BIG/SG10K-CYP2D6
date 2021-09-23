@@ -202,13 +202,13 @@ final_params = check_params(params, workflow)
 // main
 workflow {
     println(" Starting workflow ")
-    
+
 
 cram_ch = channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
-    .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
-    .view()
+    // .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
+    // .view()
 
     CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
