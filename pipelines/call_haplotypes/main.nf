@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl=2
-version = "0.1"   // nf workflow version
+version = "0.2"   // nf workflow version
 
 /*
 ----------------------------------------------------------------------
@@ -17,8 +17,8 @@ def help_message(String version) {
         ==============================================
 
         Mandatory arguments:
-        --cram       Path to input cram. Note: cram index must be available in the same directory.
-        --reference  Path to genome reference. Note: reference index must be available in the same directory.
+        --cram_list  Path to file with list of input crams (one file per line). Note: cram index must be available as <cram>.crai.
+        --reference  Path to genome reference. Note: reference index must be available as <fasta>.fai or <fa>.fai.
         --genome     Genome build. One of: 19, 37, 38.
 
         Additional arguments:
@@ -71,7 +71,7 @@ def default_params(){
     def params = [:]
     params.help = false
     params.version = false
-    params.cram = false
+    params.cram_list = false
     params.reference = false
     params.genome = false
     return params
@@ -85,15 +85,16 @@ def check_params(Map params, nextflow.script.WorkflowMetadata workflow) {
     help_or_version(final_params, version)
 
     // param checks
-    check_mandatory_parameter(final_params, "cram")
+    check_mandatory_parameter(final_params, "cram_list")
     check_mandatory_parameter(final_params, "reference")
     check_mandatory_parameter(final_params, "genome")
 
     // additional pre-sets
     final_params.publish_dir = workflow.launchDir + "/outputs"
 
-    cram_basename = final_params.cram.take(final_params.cram.lastIndexOf('.'))
-    final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
+    // TODO
+    // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
+    // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
 
     ref_basename = final_params.reference.take(final_params.reference.lastIndexOf('.'))
     ref_extension = final_params.reference.substring(final_params.reference.lastIndexOf("."))
@@ -184,7 +185,12 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
-cram_ch = channel.fromFilePairs(final_params.cram_pattern)
+cram_ch = Channel.fromPath(params.cram_list)
+                     .splitText()
+                     .map { file(it) }
+chram_ch.view()
+
+// cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
 // main
