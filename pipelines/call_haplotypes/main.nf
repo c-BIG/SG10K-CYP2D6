@@ -92,12 +92,14 @@ def check_params(Map params, nextflow.script.WorkflowMetadata workflow) {
     // additional pre-sets
     final_params.publish_dir = workflow.launchDir + "/outputs"
 
-    // TODO
-    // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
-    // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
+    final_params.cram_patterns = file(final_params.cram_list)
+        .readLines()
+        .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
 
-    ref_basename = final_params.reference.take(final_params.reference.lastIndexOf('.'))
-    ref_extension = final_params.reference.substring(final_params.reference.lastIndexOf("."))
+    ref_basename = final_params.reference
+        .take(final_params.reference.lastIndexOf('.'))
+    ref_extension = final_params.reference
+        .substring(final_params.reference.lastIndexOf("."))
     switch (ref_extension) {
         case ".fasta": pattern = "{.fasta,.fasta.fai}"; break;
         case ".fa": pattern = "{.fa,.fa.fai}"; break;
@@ -128,7 +130,7 @@ PROCESSES
 process CYRIUS {
     tag "${sample_id}"
     container = "cyrius:1.1.1"
-    publishDir "${final_params.publish_dir}/cyrius", mode: "copy"
+    publishDir "${final_params.publish_dir}/${sample_id}/cyrius", mode: "copy"
 
     input:
     tuple val(sample_id), file(cram)
@@ -155,7 +157,7 @@ process CYRIUS {
 process ALDY {
     tag "${sample_id}"
     container = "aldy:3.3"
-    publishDir "${final_params.publish_dir}/aldy", mode: "copy"
+    publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
 
     input:
     tuple val(sample_id), file(cram)
@@ -185,31 +187,8 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
-// cram_ch = channel.fromFilePairs(final_params.cram_pattern)
-
-cram_patterns = file(params.cram_list)
-    .readLines()
-    .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-
-println(cram_patterns.getClass())
-println(cram_patterns)
-
-// cram_patterns
-
-cram_ch = channel.fromFilePairs(cram_patterns)
-cram_ch.view()
-
-    // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
-    // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
-
-
-// cram_ch = Channel.fromPath(params.cram_list)
-//                  .splitText()
-//                  .map{ [ file(it).getBaseName(), it.trim(), it.trim()+".crai"  ] }
-
-
+cram_ch = channel.fromFilePairs(final_params.cram_patterns)
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
-reference_ch.view()
 
 // main
 workflow {
