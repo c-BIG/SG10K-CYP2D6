@@ -190,18 +190,18 @@ final_params = check_params(params, workflow)
 // tmp = file(final_params.cram_list)
 //         .readLines()
 //         .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-channel
+
+// main
+workflow {
+cram_ch = channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
-    .map{ row -> tuple( file(row).getBaseName(), file(row.trim()), file(row.trim() + ".crai") ) }
-    .set{cram_ch}
+    .map{ row -> tuple( file(row).getBaseName(), [file(row.trim()), file(row.trim() + ".crai")] ) }
 
 // cram_ch = channel.fromFilePairs(final_params.cram_patterns)
 cram_ch.view()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
-// main
-workflow {
     CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
 }
