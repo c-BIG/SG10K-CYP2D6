@@ -186,7 +186,7 @@ process ECHO {
     tuple val(reference_id), file(reference_tuple)
 
     output:
-    path "${sample_id}.*", emit: aldy_outputs
+    path "*", emit: echo_outputs
 
     script:
     """
