@@ -164,7 +164,6 @@ WORKFLOW
 ---------------------------------------------------------------------
 */
 
-
 // parameters
 final_params = check_params(params, workflow)
 
