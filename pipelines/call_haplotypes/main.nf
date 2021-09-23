@@ -182,14 +182,14 @@ process ECHO {
     publishDir "${final_params.publish_dir}/${sample_id}", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram_tuple)
+    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
 
     output:
     path "*", emit: echo_outputs
 
     script:
     """
-    echo "${cram_tuple[0]}" > echo.txt
+    echo "${sample_id}, ${cram}, ${fai}" > echo.txt
     """
 }
 
@@ -199,37 +199,26 @@ WORKFLOW
 ---------------------------------------------------------------------
 */
 
+
 // parameters
 final_params = check_params(params, workflow)
 
 // input channels
-reference_ch = channel.fromPath(params.reference)
-    .map{ fa -> tuple( file(fa), file(fa + ".fai") )}
+reference = channel.fromPath(final_params.reference)
+    .map{ fa -> tuple( file(fa), file(fa + ".fai") ) }
 
-cram_ch = channel
-    .fromPath(params.cram_list)
+cram = channel.fromPath(final_params.cram_list)
     .splitText(by: 1)
-    .map{ row -> tuple( file(row).getBaseName(), file(row.trim()), file(row.trim() + ".crai") ) }
-    .combine(reference_ch)
-cram_ch.view()
+    .map{ cram -> tuple( file(cram).getBaseName(), file(cram.trim()), file(cram.trim() + ".crai") ) }
 
-
-// tmp = file(final_params.cram_list)
-//         .readLines()
-//         .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-
-
-// cram_ch = channel.fromFilePairs(final_params.cram_patterns)
-    // cram_ch.view()
-
-    // .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
-    // .view()
+inputs = cram.combine(reference)
 
 // main
 workflow {
+
     // CYRIUS(cram_ch, reference_ch)
     // ALDY(cram_ch, reference_ch)
-    ECHO(cram_ch)
+    ECHO(inputs)
 }
 
 // triggers
