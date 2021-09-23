@@ -160,7 +160,7 @@ process ALDY {
     publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram)
+    tuple file(cram)
     tuple val(reference_id), file(reference)
 
     output:
@@ -210,7 +210,7 @@ cram_ch = channel
     // .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
     // .view()
 
-    CYRIUS(cram_ch, reference_ch)
+    // CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
 }
 
