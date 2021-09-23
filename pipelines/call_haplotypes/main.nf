@@ -187,7 +187,8 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
-cram_ch = channel.fromFilePairs(final_params.cram_patterns).collect()
+println(final_params.cram_patterns)
+cram_ch = channel.fromFilePairs(final_params.cram_patterns)
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 
 // main
