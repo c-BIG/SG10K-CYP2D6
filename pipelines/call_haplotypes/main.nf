@@ -187,17 +187,22 @@ final_params = check_params(params, workflow)
 // input channels
 // cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 
-cram_ch = Channel.fromPath(params.cram_list)
-                 .splitText()
-                 .map{ [ file(it).getBaseName(), it.trim(), it.trim()+".crai"  ] }
-cram_ch.view()
+file(params.cram_list)
+    .readLines()
+    .each { println it }
+
+// cram_ch = Channel.fromPath(params.cram_list)
+//                  .splitText()
+//                  .map{ [ file(it).getBaseName(), it.trim(), it.trim()+".crai"  ] }
+// cram_ch.view()
+
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
 reference_ch.view()
 
 // main
 workflow {
     // CYRIUS(cram_ch, reference_ch)
-    ALDY(cram_ch, reference_ch)
+    // ALDY(cram_ch, reference_ch)
 }
 
 // triggers
