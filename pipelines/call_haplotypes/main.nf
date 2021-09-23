@@ -204,7 +204,7 @@ final_params = check_params(params, workflow)
 
 // input channels
 reference_ch = channel.fromFilePairs(params.reference)
-    .map{ row -> tuple( file(row.trim()), file(row.trim() + ".fai") )}
+    .map{ row -> tuple( file(row), file(row + ".fai") )}
     .flatten()
 
 cram_ch = channel
