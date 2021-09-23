@@ -196,7 +196,7 @@ reference_ch.view()
 
 // main
 workflow {
-    CYRIUS(cram_ch, reference_ch)
+    // CYRIUS(cram_ch, reference_ch)
     ALDY(cram_ch, reference_ch)
 }
 
