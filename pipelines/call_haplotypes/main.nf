@@ -190,7 +190,7 @@ final_params = check_params(params, workflow)
 cram_patterns = file(params.cram_list)
     .readLines()
     .each { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-    .flatMap()
+    .flatten()
 
 // cram_patterns
 
