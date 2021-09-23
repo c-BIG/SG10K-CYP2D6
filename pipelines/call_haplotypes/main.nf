@@ -211,6 +211,7 @@ cram_ch = channel
     .splitText(by: 1)
     .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
     .combine(reference_ch)
+    .flatten()
 cram_ch.view()
 
 
