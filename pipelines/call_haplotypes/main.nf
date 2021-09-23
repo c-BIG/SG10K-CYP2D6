@@ -17,9 +17,9 @@ def help_message(String version) {
         ==============================================
 
         Mandatory arguments:
-        --cram_list  Path to file with list of input crams (one file per line). Note: cram index must be available as <cram>.crai.
-        --reference  Path to genome reference. Note: reference index must be available as <fasta>.fai or <fa>.fai.
-        --genome     Genome build. One of: 19, 37, 38.
+        --cram_list   Path to file with list of input crams (one file per line). Note: cram index must be available as <cram>.crai.
+        --reference   Path to genome reference. Note: reference index must be available as <fasta>.fai or <fa>.fai.
+        --genome      Genome build. One of: 19, 37, 38.
 
         Additional arguments:
         --help
@@ -92,23 +92,6 @@ def check_params(Map params, nextflow.script.WorkflowMetadata workflow) {
     // additional pre-sets
     final_params.publish_dir = workflow.launchDir + "/outputs"
 
-    // final_params.cram_patterns = file(final_params.cram_list)
-    //     .readLines()
-    //     .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-
-    ref_basename = final_params.reference
-        .take(final_params.reference.lastIndexOf('.'))
-    ref_extension = final_params.reference
-        .substring(final_params.reference.lastIndexOf("."))
-    switch (ref_extension) {
-        case ".fasta": pattern = "{.fasta,.fasta.fai}"; break;
-        case ".fa": pattern = "{.fa,.fa.fai}"; break;
-        default:
-            println("ERROR: Unrecognised reference suffix")
-            System.exit(1)
-    }
-    final_params.reference_pattern = ref_basename + pattern
-
     return final_params
 }
 
@@ -133,8 +116,7 @@ process CYRIUS {
     publishDir "${final_params.publish_dir}/${sample_id}/cyrius", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram)
-    tuple val(reference_id), file(reference)
+    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
 
     output:
     path "${sample_id}.*", emit: cyrius_outputs
@@ -142,13 +124,13 @@ process CYRIUS {
     script:
     """
     # prepare sample manifest
-    echo "${cram[0]}" > manifest.txt
+    echo "${cram}" > manifest.txt
 
     # run cyrius
     star_caller.py \
         --manifest manifest.txt \
         --genome ${final_params.genome} \
-        --reference ${reference[0]} \
+        --reference ${fa} \
         --prefix ${sample_id} \
         --outDir .
     """
@@ -198,8 +180,7 @@ inputs = cram.combine(reference)
 
 // main
 workflow {
-
-    // CYRIUS(cram_ch, reference_ch)
+    CYRIUS(inputs)
     ALDY(inputs)
 }
 
