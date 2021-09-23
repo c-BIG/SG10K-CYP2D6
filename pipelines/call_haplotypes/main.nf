@@ -160,8 +160,7 @@ process ALDY {
     publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram_tuple)
-    tuple val(reference_id), file(reference_tuple)
+    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
 
     output:
     path "${sample_id}.*", emit: aldy_outputs
@@ -171,25 +170,9 @@ process ALDY {
     aldy genotype \
         --profile illumina \
         --gene CYP2D6 \
-        --reference ${reference_tuple[0]} \
+        --reference ${fa} \
         --output ${sample_id}.aldy \
-        ${cram_tuple[0]}
-    """
-}
-
-process ECHO {
-    tag "${sample_id}"
-    publishDir "${final_params.publish_dir}/${sample_id}", mode: "copy"
-
-    input:
-    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
-
-    output:
-    path "*", emit: echo_outputs
-
-    script:
-    """
-    echo "${sample_id}, ${cram}, ${fai}" > echo.txt
+        ${cram}
     """
 }
 
@@ -217,8 +200,7 @@ inputs = cram.combine(reference)
 workflow {
 
     // CYRIUS(cram_ch, reference_ch)
-    // ALDY(cram_ch, reference_ch)
-    ECHO(inputs)
+    ALDY(inputs)
 }
 
 // triggers
