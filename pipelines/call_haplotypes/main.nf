@@ -178,11 +178,11 @@ process ALDY {
 }
 
 process ECHO {
-    tag "${sample_id}"
-    publishDir "${final_params.publish_dir}/${sample_id}/echo", mode: "copy"
+    tag "echo"
+    publishDir "${final_params.publish_dir}/echo", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram_tuple)
+    tuple file(cram)
     tuple val(reference_id), file(reference_tuple)
 
     output:
@@ -190,7 +190,7 @@ process ECHO {
 
     script:
     """
-    echo "$sample_id,${cram_tuple[0]},${cram_tuple[1]},$reference_id,${reference_tuple[0]},${reference_tuple[1]}" > echo.txt
+    echo "${cram},${reference_id},${reference_tuple[0]},${reference_tuple[1]}" > echo.txt
     """
 }
 
