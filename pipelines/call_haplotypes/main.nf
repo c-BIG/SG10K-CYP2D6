@@ -187,11 +187,17 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
-tmp = file(final_params.cram_list)
-        .readLines()
-        .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-sleep(10);
-cram_ch = channel.fromFilePairs(tmp)
+// tmp = file(final_params.cram_list)
+//         .readLines()
+//         .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
+// sleep(10);
+// cram_ch = channel.fromFilePairs(tmp)
+
+channel
+    .fromPath(params.cram_list)
+    .splitText(by: 1)
+    .collect({ it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" })
+    .set(cram_ch)
 // cram_ch = channel.fromFilePairs(final_params.cram_patterns)
 cram_ch.view()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
