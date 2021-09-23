@@ -193,7 +193,7 @@ final_params = check_params(params, workflow)
 channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
-    .map{ row -> tuple( file(row).getBaseName(), [file(row.trim()), file(row.trim() + ".crai")]) }
+    .map{ row -> tuple( file(row).getBaseName(), file(row.trim()), file(row.trim() + ".crai") ) }
     .set{cram_ch}
 
 // cram_ch = channel.fromFilePairs(final_params.cram_patterns)
