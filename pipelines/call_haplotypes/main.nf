@@ -188,7 +188,7 @@ final_params = check_params(params, workflow)
 cram_ch = Channel.fromPath(params.cram_list)
                      .splitText()
                      .map { file(it) }
-chram_ch.view()
+cram_ch.view()
 
 // cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
