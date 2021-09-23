@@ -190,10 +190,11 @@ final_params = check_params(params, workflow)
 cram_ch = Channel.fromPath(params.cram_list)
                 .splitText()
                 // .map{ tuple( file(it).getBaseName(), [ it, it ] )}
-                .map{ tuple( it, it + ".crai" )}
+                .map{ tuple( it, it.concat(".crai") ) }
 
 cram_ch.view()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+reference_ch.view()
 
 // main
 workflow {
