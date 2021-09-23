@@ -230,7 +230,7 @@ cram_ch.view()
 workflow {
     // CYRIUS(cram_ch, reference_ch)
     // ALDY(cram_ch, reference_ch)
-    ECHO(cram_ch.out)
+    ECHO(cram_ch)
 }
 
 // triggers
