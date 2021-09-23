@@ -95,6 +95,7 @@ def check_params(Map params, nextflow.script.WorkflowMetadata workflow) {
     final_params.cram_patterns = file(final_params.cram_list)
         .readLines()
         .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
+        .toList()
 
     ref_basename = final_params.reference
         .take(final_params.reference.lastIndexOf('.'))
