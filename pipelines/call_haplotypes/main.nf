@@ -205,13 +205,11 @@ final_params = check_params(params, workflow)
 // input channels
 reference_ch = channel.fromPath(params.reference)
     .map{ fa -> tuple( file(fa), file(fa + ".fai") )}
-    .flatten()
 
 cram_ch = channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
     .map{ row -> tuple( file(row).getBaseName(), [ file(row.trim()), file(row.trim() + ".crai") ] ) }
-    .flatten()
     .combine(reference_ch)
 cram_ch.view()
 
