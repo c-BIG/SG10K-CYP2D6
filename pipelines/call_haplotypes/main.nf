@@ -190,15 +190,10 @@ final_params = check_params(params, workflow)
 // tmp = file(final_params.cram_list)
 //         .readLines()
 //         .collect { it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
-// sleep(10);
-// cram_ch = channel.fromFilePairs(tmp)
-
 cram_ch = channel
     .fromPath(params.cram_list)
     .splitText(by: 1)
-    .collect({ it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" })
-    .toList()
-    .fromFilePairs()
+
 // cram_ch = channel.fromFilePairs(final_params.cram_patterns)
 cram_ch.view()
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
