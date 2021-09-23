@@ -188,8 +188,12 @@ final_params = check_params(params, workflow)
 cram_ch = Channel.fromPath(params.cram_list)
                      .splitText()
                     //  .map { file(it) }
-                    .map{ it -> tuple( it.baseName(), file(it), file(it + ".crai") ) }
+                    .map{ it -> it.take(it.lastIndexOf('.')) + "{.cram,.cram.crai}" }
 cram_ch.view()
+
+    // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
+    // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
+
 
 // cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 reference_ch = channel.fromFilePairs(final_params.reference_pattern)
