@@ -158,7 +158,7 @@ process ALDY {
     publishDir "${final_params.publish_dir}/aldy", mode: "copy"
 
     input:
-    set val(sample_id), file(cram), file(cram_index)
+    tuple val(sample_id), file(cram), file(cram_index)
     tuple val(reference_id), file(reference)
 
     output:
