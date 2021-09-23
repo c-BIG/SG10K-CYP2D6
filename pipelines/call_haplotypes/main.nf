@@ -190,7 +190,7 @@ process ECHO {
 
     script:
     """
-    echo "$sample_id,${cram_tuple[0]},${cram_tuple[1]},$reference_id,${reference_tuple[0]},${reference_tuple[1]}" > $sample_id.txt
+    echo "$sample_id,${cram_tuple[0]},${cram_tuple[1]},$reference_id,${reference_tuple[0]},${reference_tuple[1]}" > ${sample_id}.txt
     """
 }
 
