@@ -160,7 +160,7 @@ process ALDY {
     publishDir "${final_params.publish_dir}/sample_id/aldy", mode: "copy"
 
     input:
-    tuple file(cram)
+    file(cram)
     tuple val(reference_id), file(reference)
 
     output:
