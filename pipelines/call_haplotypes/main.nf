@@ -187,9 +187,11 @@ final_params = check_params(params, workflow)
 // input channels
 // cram_ch = channel.fromFilePairs(final_params.cram_pattern)
 
-file(params.cram_list)
+cram_pattern = file(params.cram_list)
     .readLines()
     .each { println it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
+cram_ch = channel.fromFilePairs(cram_pattern)
+cram_ch.view()
 
     // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
     // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
