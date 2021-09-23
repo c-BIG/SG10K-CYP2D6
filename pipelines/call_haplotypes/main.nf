@@ -189,7 +189,11 @@ final_params = check_params(params, workflow)
 
 file(params.cram_list)
     .readLines()
-    .each { println it }
+    .each { println it.take(it.lastIndexOf(".")) + "{.cram,.cram.crai}" }
+
+    // cram_basename = final_params.cram_list.take(final_params.cram.lastIndexOf('.'))
+    // final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
+
 
 // cram_ch = Channel.fromPath(params.cram_list)
 //                  .splitText()
