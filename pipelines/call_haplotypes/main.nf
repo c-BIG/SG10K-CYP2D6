@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl=2
-version = "0.1"   // nf workflow version
+version = "0.2"   // nf workflow version
 
 /*
 ----------------------------------------------------------------------
@@ -17,9 +17,9 @@ def help_message(String version) {
         ==============================================
 
         Mandatory arguments:
-        --cram       Path to input cram. Note: cram index must be available in the same directory.
-        --reference  Path to genome reference. Note: reference index must be available in the same directory.
-        --genome     Genome build. One of: 19, 37, 38.
+        --cram_list   Path to file with list of input crams (one file per line). Note: cram index must be available as <cram>.crai.
+        --reference   Path to genome reference. Note: reference index must be available as <fasta>.fai or <fa>.fai.
+        --genome      Genome build. One of: 19, 37, 38.
 
         Additional arguments:
         --help
@@ -71,7 +71,7 @@ def default_params(){
     def params = [:]
     params.help = false
     params.version = false
-    params.cram = false
+    params.cram_list = false
     params.reference = false
     params.genome = false
     return params
@@ -85,26 +85,12 @@ def check_params(Map params, nextflow.script.WorkflowMetadata workflow) {
     help_or_version(final_params, version)
 
     // param checks
-    check_mandatory_parameter(final_params, "cram")
+    check_mandatory_parameter(final_params, "cram_list")
     check_mandatory_parameter(final_params, "reference")
     check_mandatory_parameter(final_params, "genome")
 
     // additional pre-sets
     final_params.publish_dir = workflow.launchDir + "/outputs"
-
-    cram_basename = final_params.cram.take(final_params.cram.lastIndexOf('.'))
-    final_params.cram_pattern = cram_basename + "{.cram,.cram.crai}"
-
-    ref_basename = final_params.reference.take(final_params.reference.lastIndexOf('.'))
-    ref_extension = final_params.reference.substring(final_params.reference.lastIndexOf("."))
-    switch (ref_extension) {
-        case ".fasta": pattern = "{.fasta,.fasta.fai}"; break;
-        case ".fa": pattern = "{.fa,.fa.fai}"; break;
-        default:
-            println("ERROR: Unrecognised reference suffix")
-            System.exit(1)
-    }
-    final_params.reference_pattern = ref_basename + pattern
 
     return final_params
 }
@@ -127,11 +113,10 @@ PROCESSES
 process CYRIUS {
     tag "${sample_id}"
     container = "cyrius:1.1.1"
-    publishDir "${final_params.publish_dir}/cyrius", mode: "copy"
+    publishDir "${final_params.publish_dir}/${sample_id}/cyrius", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram)
-    tuple val(reference_id), file(reference)
+    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
 
     output:
     path "${sample_id}.*", emit: cyrius_outputs
@@ -139,13 +124,13 @@ process CYRIUS {
     script:
     """
     # prepare sample manifest
-    echo "${cram[0]}" > manifest.txt
+    echo "${cram}" > manifest.txt
 
     # run cyrius
     star_caller.py \
         --manifest manifest.txt \
         --genome ${final_params.genome} \
-        --reference ${reference[0]} \
+        --reference ${fa} \
         --prefix ${sample_id} \
         --outDir .
     """
@@ -154,11 +139,10 @@ process CYRIUS {
 process ALDY {
     tag "${sample_id}"
     container = "aldy:3.3"
-    publishDir "${final_params.publish_dir}/aldy", mode: "copy"
+    publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
 
     input:
-    tuple val(sample_id), file(cram)
-    tuple val(reference_id), file(reference)
+    tuple val(sample_id), file(cram), file(crai), file(fa), file(fai)
 
     output:
     path "${sample_id}.*", emit: aldy_outputs
@@ -168,9 +152,9 @@ process ALDY {
     aldy genotype \
         --profile illumina \
         --gene CYP2D6 \
-        --reference ${reference[0]} \
+        --reference ${fa} \
         --output ${sample_id}.aldy \
-        ${cram[0]}
+        ${cram}
     """
 }
 
@@ -184,13 +168,19 @@ WORKFLOW
 final_params = check_params(params, workflow)
 
 // input channels
-cram_ch = channel.fromFilePairs(final_params.cram_pattern)
-reference_ch = channel.fromFilePairs(final_params.reference_pattern)
+reference = channel.fromPath(final_params.reference)
+    .map{ fa -> tuple( file(fa), file(fa + ".fai") ) }
+
+cram = channel.fromPath(final_params.cram_list)
+    .splitText(by: 1)
+    .map{ cram -> tuple( file(cram).getBaseName(), file(cram.trim()), file(cram.trim() + ".crai") ) }
+
+inputs = cram.combine(reference)
 
 // main
 workflow {
-    CYRIUS(cram_ch, reference_ch)
-    ALDY(cram_ch, reference_ch)
+    CYRIUS(inputs)
+    ALDY(inputs)
 }
 
 // triggers
