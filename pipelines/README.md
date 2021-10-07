@@ -2,7 +2,7 @@
 
 ## call_haplotypes
 
-A Nextflow pipeline to launch Cyrius and aldy from an input CRAM file. Requires nextflow and the docker image defined in `Dockerfile`. Supports two different launching profiles: `local` and `awsbatch`.
+A Nextflow pipeline to launch Cyrius and aldy from an input CRAM file. Requires nextflow and the docker image defined in `call_haplotypes/Dockerfile`. Supports two different launching profiles: `local` and `awsbatch`.
 
 ### Running locally
 
