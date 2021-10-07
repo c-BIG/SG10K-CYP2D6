@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl=2
-version = "0.2"   // nf workflow version
+version = "0.3"   // nf workflow version
 
 /*
 ----------------------------------------------------------------------
@@ -112,7 +112,6 @@ PROCESSES
 
 process CYRIUS {
     tag "${sample_id}"
-    container = "cyrius:1.1.1"
     publishDir "${final_params.publish_dir}/${sample_id}/cyrius", mode: "copy"
 
     input:
@@ -138,7 +137,6 @@ process CYRIUS {
 
 process ALDY {
     tag "${sample_id}"
-    container = "aldy:3.3"
     publishDir "${final_params.publish_dir}/${sample_id}/aldy", mode: "copy"
 
     input:
