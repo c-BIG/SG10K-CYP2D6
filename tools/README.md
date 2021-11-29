@@ -152,7 +152,6 @@ ln reference/hg38.fasta.fai $WORKDIR
 ln concept/NA12878-DRAGENv3.7.6/NA12878.cram $WORKDIR
 ln concept/NA12878-DRAGENv3.7.6/NA12878.cram.crai $WORKDIR
 
-
 # run tool
 cd $WORKDIR
 docker run --privileged -it -v `pwd`:/data stellarpgx:1.2.5 nextflow run main.nf \
