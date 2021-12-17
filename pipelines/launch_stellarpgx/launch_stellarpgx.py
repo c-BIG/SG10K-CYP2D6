@@ -75,6 +75,20 @@ def parse_args():
 
     set_logging(args.loglevel)
 
+    args.sample_id = Path(args.bam).stem
+    args.input_suffix = Path(args.bam).suffix
+
+    # stage s3 files locally
+    if "s3" in args.bam:
+        cmd = f"aws s3 cp {args.bam} {args.out_dir}"
+        try_run_command(cmd=cmd, cwd=args.out_dir)
+        if args.input_suffix == ".bam":
+            cmd = f"aws s3 cp {args.bam}.bai {args.out_dir}"
+            try_run_command(cmd=cmd, cwd=args.out_dir)
+        elif args.input_suffix == ".cram":
+            cmd = f"aws s3 cp {args.bam}.crai {args.out_dir}"
+            try_run_command(cmd=cmd, cwd=args.out_dir)
+
     if not Path(args.bam).exists():
         logging.error(f"Couldn't find input file: {args.bam}")
         exit(1)
@@ -82,9 +96,6 @@ def parse_args():
     if not Path(args.ref_fa).exists():
         logging.error(f"Couldn't find input file: {args.ref_fa}")
         exit(1)
-
-    args.sample_id = Path(args.bam).stem
-    args.input_suffix = Path(args.bam).suffix
 
     # done
     return args
@@ -116,6 +127,7 @@ def prepare_stellarpgx_inputs(args):
 
     # input files: reference and index
     ref_fa_name = Path(args.ref_fa).name
+    # note: requires python 3.10+
     Path(f"{args.out_dir}/{ref_fa_name}").hardlink_to(args.ref_fa)
     Path(f"{args.out_dir}/{ref_fa_name}.fai").hardlink_to(f"{args.ref_fa}.fai")
     nf_fa = f"/data/{ref_fa_name}"
@@ -154,12 +166,13 @@ def run_stellarpgx(args):
     try_run_command(cmd=cmd, cwd=args.out_dir)
 
 
-def done(args):
+def done(args, tidy=True):
     # tidy up workdir
-    ref_fa_name = Path(args.ref_fa).name
-    bam_name = Path(args.bam).name
-    cmd = f"rm {ref_fa_name}* {bam_name}*"
-    try_run_command(cmd=cmd, cwd=args.out_dir)
+    if tidy:
+        ref_fa_name = Path(args.ref_fa).name
+        bam_name = Path(args.bam).name
+        cmd = f"rm {ref_fa_name}* {bam_name}*"
+        try_run_command(cmd=cmd, cwd=args.out_dir)
 
     # done
     logging.info(f"DONE: {args.out_dir}")
