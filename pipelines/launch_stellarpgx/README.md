@@ -2,6 +2,8 @@
 
 A Python wrapper to launch StellarPGx from an input CRAM file. Requires the docker image defined in `tools/stellarpgx`. To be launched locally.
 
+Note: requires Python 3.10+.
+
 **Deployment**
 
 1. Obtain a copy of the `launch_stellarpgx.py` script from the present repository.
