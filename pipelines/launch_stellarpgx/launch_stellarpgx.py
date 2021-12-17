@@ -80,6 +80,7 @@ def parse_args():
 
     # stage s3 files locally
     if "s3" in args.bam:
+        logging.info("S3 path detected, staging inputs...")
         cmd = f"aws s3 cp {args.bam} {args.out_dir}"
         try_run_command(cmd=cmd, cwd=args.out_dir)
         if args.input_suffix == ".bam":
@@ -88,6 +89,7 @@ def parse_args():
         elif args.input_suffix == ".cram":
             cmd = f"aws s3 cp {args.bam}.crai {args.out_dir}"
             try_run_command(cmd=cmd, cwd=args.out_dir)
+        args.bam = Path(args.bam).name
 
     if not Path(args.bam).exists():
         logging.error(f"Couldn't find input file: {args.bam}")
