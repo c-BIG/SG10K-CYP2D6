@@ -126,7 +126,7 @@ def set_logging(loglevel):
     logging.basicConfig(format="%(asctime)s %(levelname)-8s %(message)s", level=numeric_level)
 
 
-def try_run_command(cmd, cwd, return_stdout=False):
+def try_run_command(cmd, cwd=os.getcwd(), return_stdout=False):
     logging.debug(f"CMD: {cmd}; CWD: {cwd}")
     try:
         if return_stdout:
