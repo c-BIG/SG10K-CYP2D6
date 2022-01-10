@@ -151,6 +151,8 @@ def prepare_stellarpgx_inputs(args):
     if not Path(f"{args.launch_dir}/{ref_fa_name}.fai").exists:
         Path(f"{args.launch_dir}/{ref_fa_name}.fai").hardlink_to(f"{args.ref_fa}.fai")
     nf_fa = f"/data/{ref_fa_name}"
+    print(Path(f"{args.launch_dir}/{ref_fa_name}"))
+    exit(1)
 
     # input files: bam/cram and index
     # note: hardlinks are not needed because we'll call subprocess from launch_dir (see parse_args)
