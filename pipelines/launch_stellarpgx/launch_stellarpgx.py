@@ -5,6 +5,7 @@ import logging
 import argparse
 import subprocess
 from pathlib import Path
+import os
 
 
 NF_CONFIG_TEMPLATE = """
@@ -80,24 +81,30 @@ def parse_args():
     args.sample_id = Path(args.bam).stem
     args.input_suffix = Path(args.bam).suffix
 
+    # change directory to output dir (this a hack to get docker to launch)
+    args.launch_dir = args.out_dir
+    logging.debug(f"Changing directory to launch_dir: {args.launch_dir}")
+    args.original_dir = os.getcwd()
+    os.chdir(args.launch_dir)
+
     # stage s3 files locally
     if "s3" in args.bam:
-        local_bam = Path(args.out_dir + "/" + Path(args.bam).name)
+        local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
         # stage if file not already available locally
         if local_bam.exists():
-            args.bam = local_bam
             logging.info(f"S3 path detected, local copy already available: {args.bam}")
+            args.bam = local_bam
         # download from s3 if not
         else:
             logging.info(f"S3 path detected, staging inputs: {args.bam}")
-            cmd = f"aws s3 cp {args.bam} {args.out_dir}"
-            try_run_command(cmd=cmd, cwd=args.out_dir)
+            cmd = f"aws s3 cp {args.bam} {args.launch_dir}"
+            try_run_command(cmd=cmd, cwd=args.launch_dir)
             if args.input_suffix == ".bam":
-                cmd = f"aws s3 cp {args.bam}.bai {args.out_dir}"
-                try_run_command(cmd=cmd, cwd=args.out_dir)
+                cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
+                try_run_command(cmd=cmd, cwd=args.launch_dir)
             elif args.input_suffix == ".cram":
-                cmd = f"aws s3 cp {args.bam}.crai {args.out_dir}"
-                try_run_command(cmd=cmd, cwd=args.out_dir)
+                cmd = f"aws s3 cp {args.bam}.crai {args.launch_dir}"
+                try_run_command(cmd=cmd, cwd=args.launch_dir)
             args.bam = local_bam
 
     if not Path(args.bam).exists():
@@ -138,21 +145,21 @@ def prepare_stellarpgx_inputs(args):
 
     # input files: reference and index
     ref_fa_name = Path(args.ref_fa).name
-    # note: requires python 3.10+
-    Path(f"{args.out_dir}/{ref_fa_name}").hardlink_to(args.ref_fa)
-    Path(f"{args.out_dir}/{ref_fa_name}.fai").hardlink_to(f"{args.ref_fa}.fai")
+    # note: hardlink_to requires python 3.10+
+    Path(f"{args.launch_dir}/{ref_fa_name}").hardlink_to(args.ref_fa)
+    Path(f"{args.launch_dir}/{ref_fa_name}.fai").hardlink_to(f"{args.ref_fa}.fai")
     nf_fa = f"/data/{ref_fa_name}"
 
     # input files: bam/cram and index
-    # note: hardlinks are not needed because we'll call subprocess from out_dir
+    # note: hardlinks are not needed because we'll call subprocess from launch_dir (see parse_args)
     bam_name = Path(args.bam).name
     if args.input_suffix == ".bam":
-        # Path(f"{args.out_dir}/{bam_name}").hardlink_to(args.bam)
-        # Path(f"{args.out_dir}/{bam_name}.bai").hardlink_to(f"{args.bam}.bai")
+        # Path(f"{args.launch_dir}/{bam_name}").hardlink_to(args.bam)
+        # Path(f"{args.launch_dir}/{bam_name}.bai").hardlink_to(f"{args.bam}.bai")
         nf_bam = f"/data/%s" % bam_name.replace(".bam", ".*{bam,bai}")
     elif args.input_suffix == ".cram":
-        # Path(f"{args.out_dir}/{bam_name}").hardlink_to(args.bam)
-        # Path(f"{args.out_dir}/{bam_name}.crai").hardlink_to(f"{args.bam}.crai")
+        # Path(f"{args.launch_dir}/{bam_name}").hardlink_to(args.bam)
+        # Path(f"{args.launch_dir}/{bam_name}.crai").hardlink_to(f"{args.bam}.crai")
         nf_bam = f"/data/%s" % bam_name.replace(".cram", ".*{cram,crai}")
     else:
         logging.error("Unrecognised input file type; must be .bam or .cram.")
@@ -167,7 +174,7 @@ def prepare_stellarpgx_inputs(args):
     nf_config = nf_config.replace("<IN_BAM>", nf_bam)
     nf_config = nf_config.replace("<OUT_DIR>", nf_out)
 
-    nf_config_path = f"{args.out_dir}/nextflow.config"
+    nf_config_path = f"{args.launch_dir}/nextflow.config"
     with open(nf_config_path, "w") as f:
         f.write(nf_config)
 
@@ -175,7 +182,7 @@ def prepare_stellarpgx_inputs(args):
 def run_stellarpgx(args):
     cmd = "docker run --privileged -it -v `pwd`:/data stellarpgx:1.2.5 nextflow run main.nf"
     cmd += f" -profile standard -c /data/nextflow.config --format compressed --build hg38 --gene cyp2d6"
-    try_run_command(cmd=cmd, cwd=args.out_dir)
+    try_run_command(cmd=cmd)
 
 
 def done(args):
@@ -185,6 +192,9 @@ def done(args):
         bam_name = Path(args.bam).name
         cmd = f"rm {ref_fa_name}* {bam_name}*"
         try_run_command(cmd=cmd, cwd=args.out_dir)
+
+    # change back to original directory
+    os.chdir(args.original_dir)
 
     # done
     logging.info(f"DONE: {args.out_dir}")
