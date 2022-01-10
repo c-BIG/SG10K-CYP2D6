@@ -83,8 +83,8 @@ def parse_args():
 
     # check that launch dir matches output dir (needed to get docker to launch)
     args.launch_dir = args.out_dir
-    if os.getcwd() != args.launch_dir:
-        logging.error("Must launch from output directory: " + os.getcwd())
+    if Path(os.getcwd()) != Path(args.launch_dir):
+        logging.error("Must launch from output directory")
         exit(1)
 
     # stage s3 files locally
