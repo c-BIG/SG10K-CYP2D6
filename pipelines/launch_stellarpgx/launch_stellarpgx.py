@@ -146,8 +146,10 @@ def prepare_stellarpgx_inputs(args):
     # input files: reference and index
     ref_fa_name = Path(args.ref_fa).name
     # note: hardlink_to requires python 3.10+
-    Path(f"{args.launch_dir}/{ref_fa_name}").hardlink_to(args.ref_fa)
-    Path(f"{args.launch_dir}/{ref_fa_name}.fai").hardlink_to(f"{args.ref_fa}.fai")
+    if not Path(f"{args.launch_dir}/{ref_fa_name}").exists:
+        Path(f"{args.launch_dir}/{ref_fa_name}").hardlink_to(args.ref_fa)
+    if not Path(f"{args.launch_dir}/{ref_fa_name}.fai").exists:
+        Path(f"{args.launch_dir}/{ref_fa_name}.fai").hardlink_to(f"{args.ref_fa}.fai")
     nf_fa = f"/data/{ref_fa_name}"
 
     # input files: bam/cram and index
