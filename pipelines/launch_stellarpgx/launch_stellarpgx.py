@@ -180,7 +180,7 @@ def run_stellarpgx(args):
 
 def done(args):
     # tidy up workdir
-    if args.tidy:
+    if args.tidy == True:
         ref_fa_name = Path(args.ref_fa).name
         bam_name = Path(args.bam).name
         cmd = f"rm {ref_fa_name}* {bam_name}*"
