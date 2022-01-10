@@ -189,7 +189,7 @@ def run_stellarpgx(args):
 
 def done(args):
     if not args.keep_tmp:
-        # rm intermediate files
+        logging.info("Deleting temporary files...")
         ref_fa_name = Path(args.ref_fa).name
         bam_name = Path(args.bam).name
         cmd = f"rm {ref_fa_name}* {bam_name}*"
