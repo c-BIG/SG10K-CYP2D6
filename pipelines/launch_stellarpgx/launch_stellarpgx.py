@@ -182,7 +182,7 @@ def prepare_stellarpgx_inputs(args):
 
 
 def run_stellarpgx(args):
-    cmd = "docker run --privileged -it -v `pwd`:/data stellarpgx:1.2.5 nextflow run main.nf"
+    cmd = "docker run --privileged -v `pwd`:/data stellarpgx:1.2.5 nextflow run main.nf"
     cmd += f" -profile standard -c /data/nextflow.config --format compressed --build hg38 --gene cyp2d6"
     try_run_command(cmd=cmd)
 
