@@ -70,8 +70,8 @@ def parse_args():
                         help="Path to genome fasta. Default: None.")
     parser.add_argument("--out_dir", required=False, default=".",
                         help="Path to output directory (also used as work directory). Default: ./")
-    parser.add_argument("--tidy", required=False, default=True,
-                        help="Remove temporary files from output directory. Default: True")
+    parser.add_argument("--keep_tmp", required=False, default=False, action="store_true",
+                        help="Keep temporary files. Default: False")
     parser.add_argument("--loglevel", required=False, default="INFO",
                         help="Set logging level to INFO (default), WARNING or DEBUG.")
     args = parser.parse_args()
@@ -188,8 +188,8 @@ def run_stellarpgx(args):
 
 
 def done(args):
-    # tidy up workdir
-    if args.tidy == True:
+    if not args.keep_tmp:
+        # rm intermediate files
         ref_fa_name = Path(args.ref_fa).name
         bam_name = Path(args.bam).name
         cmd = f"rm {ref_fa_name}* {bam_name}*"
