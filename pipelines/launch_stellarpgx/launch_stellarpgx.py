@@ -81,11 +81,11 @@ def parse_args():
     args.sample_id = Path(args.bam).stem
     args.input_suffix = Path(args.bam).suffix
 
-    # change directory to output dir (this a hack to get docker to launch)
+    # check that launch dir matches output dir (needed to get docker to launch)
     args.launch_dir = args.out_dir
-    logging.debug(f"Changing directory to launch_dir: {args.launch_dir}")
-    args.original_dir = os.getcwd()
-    os.chdir(args.launch_dir)
+    if not os.getcwd() == args.launch_dir:
+        logging.error("Must launch from output directory")
+        exit(1)
 
     # stage s3 files locally
     if "s3" in args.bam:
@@ -194,9 +194,6 @@ def done(args):
         bam_name = Path(args.bam).name
         cmd = f"rm {ref_fa_name}* {bam_name}*"
         try_run_command(cmd=cmd, cwd=args.out_dir)
-
-    # change back to original directory
-    # os.chdir(args.original_dir)
 
     # done
     logging.info(f"DONE: {args.out_dir}")
