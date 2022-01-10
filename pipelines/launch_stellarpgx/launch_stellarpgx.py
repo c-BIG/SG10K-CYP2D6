@@ -196,7 +196,7 @@ def done(args):
         try_run_command(cmd=cmd, cwd=args.out_dir)
 
     # change back to original directory
-    os.chdir(args.original_dir)
+    # os.chdir(args.original_dir)
 
     # done
     logging.info(f"DONE: {args.out_dir}")
