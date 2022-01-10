@@ -82,7 +82,7 @@ def parse_args():
 
     # stage s3 files locally
     if "s3" in args.bam:
-        local_bam = args.out_dir + "/" + Path(args.bam).name
+        local_bam = Path(args.out_dir + "/" + Path(args.bam).name)
         # stage if file not already available locally
         if local_bam.exists():
             args.bam = local_bam
