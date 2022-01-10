@@ -89,7 +89,9 @@ def parse_args():
         elif args.input_suffix == ".cram":
             cmd = f"aws s3 cp {args.bam}.crai {args.out_dir}"
             try_run_command(cmd=cmd, cwd=args.out_dir)
-        args.bam = Path(args.bam).name
+        # update args to reflect local path
+        bam_name = Path(args.bam).name
+        args.bam = Path(f"{args.out_dir}/{bam_name}")
 
     if not Path(args.bam).exists():
         logging.error(f"Couldn't find input file: {args.bam}")
@@ -135,14 +137,15 @@ def prepare_stellarpgx_inputs(args):
     nf_fa = f"/data/{ref_fa_name}"
 
     # input files: bam/cram and index
+    # note: hardlinks are not needed because we'll call subprocess from out_dir
     bam_name = Path(args.bam).name
     if args.input_suffix == ".bam":
-        Path(f"{args.out_dir}/{bam_name}").hardlink_to(args.bam)
-        Path(f"{args.out_dir}/{bam_name}.bai").hardlink_to(f"{args.bam}.bai")
+        # Path(f"{args.out_dir}/{bam_name}").hardlink_to(args.bam)
+        # Path(f"{args.out_dir}/{bam_name}.bai").hardlink_to(f"{args.bam}.bai")
         nf_bam = f"/data/%s" % bam_name.replace(".bam", ".*{bam,bai}")
     elif args.input_suffix == ".cram":
-        Path(f"{args.out_dir}/{bam_name}").hardlink_to(args.bam)
-        Path(f"{args.out_dir}/{bam_name}.crai").hardlink_to(f"{args.bam}.crai")
+        # Path(f"{args.out_dir}/{bam_name}").hardlink_to(args.bam)
+        # Path(f"{args.out_dir}/{bam_name}.crai").hardlink_to(f"{args.bam}.crai")
         nf_bam = f"/data/%s" % bam_name.replace(".cram", ".*{cram,crai}")
     else:
         logging.error("Unrecognised input file type; must be .bam or .cram.")
