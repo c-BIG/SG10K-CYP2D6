@@ -83,9 +83,9 @@ def parse_args():
 
     # check that launch dir matches output dir (needed to get docker to launch)
     args.launch_dir = args.out_dir
-    if Path(os.getcwd()) != Path(args.launch_dir):
-        logging.error("Must launch from output directory")
-        exit(1)
+    # if Path(os.getcwd()) != Path(args.launch_dir):
+    #     logging.error("Must launch from output directory")
+    #     exit(1)
 
     # stage s3 files locally
     if "s3" in args.bam:
@@ -184,7 +184,7 @@ def prepare_stellarpgx_inputs(args):
 def run_stellarpgx(args):
     cmd = "docker run --privileged -v `pwd`:/data stellarpgx:1.2.5 nextflow run main.nf"
     cmd += f" -profile standard -c /data/nextflow.config --format compressed --build hg38 --gene cyp2d6"
-    try_run_command(cmd=cmd)
+    try_run_command(cmd=cmd, cwd=cwd)
 
 
 def done(args):
