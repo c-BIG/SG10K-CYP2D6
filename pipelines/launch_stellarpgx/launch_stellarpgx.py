@@ -89,23 +89,33 @@ def parse_args():
 
     # stage s3 files locally
     if "s3" in args.bam:
-        local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
-        # stage if file not already available locally
-        if local_bam.exists():
-            logging.info(f"S3 path detected, local copy already available: {args.bam}")
-            args.bam = local_bam
-        # download from s3 if not
-        else:
-            logging.info(f"S3 path detected, staging inputs: {args.bam}")
-            cmd = f"aws s3 cp {args.bam} {args.launch_dir}"
-            try_run_command(cmd=cmd, cwd=args.launch_dir)
-            if args.input_suffix == ".bam":
-                cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
-                try_run_command(cmd=cmd, cwd=args.launch_dir)
-            elif args.input_suffix == ".cram":
-                cmd = f"aws s3 cp {args.bam}.crai {args.launch_dir}"
-                try_run_command(cmd=cmd, cwd=args.launch_dir)
-            args.bam = local_bam
+        # /home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys sg10k-reanalysis-dev-s3-1:/WHB3383/e940f08c-aaf0-461e-a6d2-bc0816328e7f/output/try-1/ WHB3383
+        # s3://sg10k-reanalysis-dev-s3-1/WHB3374/8c6e6526-1150-491f-a47a-d453c571c1e1/output/try-1/WHB3374.cram
+        bucket = args.bam.repace("s3://", "").split("/")[0]
+        prefix = args.bam.repace("s3://", "").split("/")[1:]
+        print(bucket)
+        print(prefix)
+        mountpoint = args.out_dir
+        cmd = f"goofys {bucket}:{prefix} {mountpoint}"
+        print(cmd)
+        exit(1)
+        # local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
+        # # stage if file not already available locally
+        # if local_bam.exists():
+        #     logging.info(f"S3 path detected, local copy already available: {args.bam}")
+        #     args.bam = local_bam
+        # # download from s3 if not
+        # else:
+        #     logging.info(f"S3 path detected, staging inputs: {args.bam}")
+        #     cmd = f"aws s3 cp {args.bam} {args.launch_dir}"
+        #     try_run_command(cmd=cmd, cwd=args.launch_dir)
+        #     if args.input_suffix == ".bam":
+        #         cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
+        #         try_run_command(cmd=cmd, cwd=args.launch_dir)
+        #     elif args.input_suffix == ".cram":
+        #         cmd = f"aws s3 cp {args.bam}.crai {args.launch_dir}"
+        #         try_run_command(cmd=cmd, cwd=args.launch_dir)
+        #     args.bam = local_bam
 
     if not Path(args.bam).exists():
         logging.error(f"Couldn't find input file: {args.bam}")
