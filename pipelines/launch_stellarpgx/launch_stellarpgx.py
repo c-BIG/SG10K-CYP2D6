@@ -92,7 +92,7 @@ def parse_args():
         # /home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys sg10k-reanalysis-dev-s3-1:/WHB3383/e940f08c-aaf0-461e-a6d2-bc0816328e7f/output/try-1/ WHB3383
         # s3://sg10k-reanalysis-dev-s3-1/WHB3374/8c6e6526-1150-491f-a47a-d453c571c1e1/output/try-1/WHB3374.cram
         bucket = args.bam.replace("s3://", "").split("/")[0]
-        prefix = args.bam.replace("s3://", "").split("/")[1:].pop().join("/")
+        prefix = "/".join(args.bam.replace("s3://", "").split("/")[1:].pop())
         print(bucket)
         print(prefix)
         mountpoint = args.out_dir
