@@ -72,6 +72,8 @@ def parse_args():
                         help="Path to output directory (also used as work directory). Default: ./")
     parser.add_argument("--keep_tmp", required=False, default=False, action="store_true",
                         help="Keep temporary files. Default: False")
+    parser.add_argument("--goofys_binary", required=True, default=None,
+                        help="Path to goofys binary. Default: None")
     parser.add_argument("--loglevel", required=False, default="INFO",
                         help="Set logging level to INFO (default), WARNING or DEBUG.")
     args = parser.parse_args()
@@ -105,8 +107,7 @@ def parse_args():
             mountpoint = f"{args.out_dir}/s3"
             if not os.path.exists(mountpoint):
                 os.makedirs(mountpoint)
-            # /home/jupyter-mgonzalezporta/workspace/tools/goofys/
-            cmd = f"goofys {bucket}:{prefix} {mountpoint}"
+            cmd = f"{args.goofys} {bucket}:{prefix} {mountpoint}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
 
             # copy relevant files
