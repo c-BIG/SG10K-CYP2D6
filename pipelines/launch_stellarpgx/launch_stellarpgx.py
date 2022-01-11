@@ -93,10 +93,10 @@ def parse_args():
         # s3://sg10k-reanalysis-dev-s3-1/WHB3374/8c6e6526-1150-491f-a47a-d453c571c1e1/output/try-1/WHB3374.cram
         bucket = args.bam.replace("s3://", "").split("/")[0]
         prefix = Path("/".join(args.bam.replace("s3://", "").split("/")[1:])).parent
-        mountpoint = f"{args.out_dir}/goofys"
+        mountpoint = f"{args.out_dir}/s3"
         if not os.path.exists(mountpoint):
             os.makedirs(mountpoint)
-        cmd = f"goofys {bucket}:{prefix} {mountpoint}"
+        cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
         try_run_command(cmd=cmd, cwd=args.launch_dir)
         exit(1)
         # local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
