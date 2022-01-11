@@ -117,7 +117,7 @@ def parse_args():
             try_run_command(cmd=cmd, cwd=args.launch_dir)
 
             # unmount S3 bucket
-            cmd = f"umount {mountpoint}"
+            cmd = f"umount {mountpoint} && rmdir {mountpoint}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
 
             # update path in args
