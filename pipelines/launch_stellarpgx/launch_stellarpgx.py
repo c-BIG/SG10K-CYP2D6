@@ -89,7 +89,9 @@ def parse_args():
 
     # stage s3 files locally
     if "s3" in args.bam:
-        logging.info(f"S3 path detected, mounting inputs...")
+        logging.info(f"S3 path detected, staging inputs...")
+
+        # mount s3 bucket
         bucket = args.bam.replace("s3://", "").split("/")[0]
         prefix = Path("/".join(args.bam.replace("s3://", "").split("/")[1:])).parent
         mountpoint = f"{args.out_dir}/s3"
@@ -97,12 +99,16 @@ def parse_args():
             os.makedirs(mountpoint)
         cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
         try_run_command(cmd=cmd, cwd=args.launch_dir)
-        args.bam = Path(mountpoint + "/" + Path(args.bam).name)
-        # local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
-        # # stage if file not already available locally
-        # if local_bam.exists():
-        #     logging.info(f"S3 path detected, local copy already available: {args.bam}")
-        #     args.bam = local_bam
+
+        # copy cram and crai files
+        # cmd = f"cp {mountpoint}/args.sample_id.cram "
+        # args.bam = Path(mountpoint + "/" + Path(args.bam).name)
+
+        local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
+        # stage if file not already available locally
+        if local_bam.exists():
+            logging.info(f"S3 path detected, local copy already available: {args.bam}")
+            args.bam = local_bam
         # # download from s3 if not
         # else:
         #     logging.info(f"S3 path detected, staging inputs: {args.bam}")
