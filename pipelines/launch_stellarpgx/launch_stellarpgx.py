@@ -91,16 +91,12 @@ def parse_args():
     if "s3" in args.bam:
         logging.info(f"S3 path detected, staging inputs...")
 
-
-        # copy cram and crai files
-        # cmd = f"cp {mountpoint}/args.sample_id.cram "
-        # args.bam = Path(mountpoint + "/" + Path(args.bam).name)
-
         local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
         # stage if file not already available locally
         if local_bam.exists():
             logging.info(f"Inputs already available locally, skipping copy...")
             args.bam = local_bam
+
         # download from s3 if not
         else:
             # mount s3 bucket
@@ -109,7 +105,8 @@ def parse_args():
             mountpoint = f"{args.out_dir}/s3"
             if not os.path.exists(mountpoint):
                 os.makedirs(mountpoint)
-            cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
+            # /home/jupyter-mgonzalezporta/workspace/tools/goofys/
+            cmd = f"goofys {bucket}:{prefix} {mountpoint}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
 
             # copy relevant files
@@ -122,14 +119,6 @@ def parse_args():
 
             # update path in args
             args.bam = local_bam
-
-
-            # if args.input_suffix == ".bam":
-            #     cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
-            #     try_run_command(cmd=cmd, cwd=args.launch_dir)
-            # elif args.input_suffix == ".cram":
-            #     cmd = f"aws s3 cp {args.bam}.crai {args.launch_dir}"
-            #     try_run_command(cmd=cmd, cwd=args.launch_dir)
 
     if not Path(args.bam).exists():
         logging.error(f"Couldn't find input file: {args.bam}")
@@ -177,15 +166,10 @@ def prepare_stellarpgx_inputs(args):
     nf_fa = f"/data/{ref_fa_name}"
 
     # input files: bam/cram and index
-    # note: hardlinks are not needed because we'll call subprocess from launch_dir (see parse_args)
     bam_name = Path(args.bam).name
     if args.input_suffix == ".bam":
-        # Path(f"{args.launch_dir}/{bam_name}").hardlink_to(args.bam)
-        # Path(f"{args.launch_dir}/{bam_name}.bai").hardlink_to(f"{args.bam}.bai")
         nf_bam = f"/data/%s" % bam_name.replace(".bam", ".*{bam,bai}")
     elif args.input_suffix == ".cram":
-        # Path(f"{args.launch_dir}/{bam_name}").hardlink_to(args.bam)
-        # Path(f"{args.launch_dir}/{bam_name}.crai").hardlink_to(f"{args.bam}.crai")
         nf_bam = f"/data/%s" % bam_name.replace(".cram", ".*{cram,crai}")
     else:
         logging.error("Unrecognised input file type; must be .bam or .cram.")
