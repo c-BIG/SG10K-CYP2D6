@@ -111,6 +111,7 @@ def parse_args():
             try_run_command(cmd=cmd, cwd=args.launch_dir)
 
             # copy relevant files
+            # NOTE: this copy can be skipped altogether by mounting the bucket directly inside the docker container (future work)
             cmd = f"cp {mountpoint}/{Path(args.bam).name}* {args.launch_dir}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
 
