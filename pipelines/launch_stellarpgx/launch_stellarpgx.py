@@ -111,7 +111,7 @@ def parse_args():
             args.bam = local_bam
         # download from s3 if not
         else:
-            cmd = f"cp {mountpoint}/{Path(args.bam).basename}* {args.launch_dir}"
+            cmd = f"cp {mountpoint}/{Path(args.bam).name}* {args.launch_dir}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
             exit(1)
             # if args.input_suffix == ".bam":
