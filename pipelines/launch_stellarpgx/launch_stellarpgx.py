@@ -72,7 +72,7 @@ def parse_args():
                         help="Path to output directory (also used as work directory). Default: ./")
     parser.add_argument("--keep_tmp", required=False, default=False, action="store_true",
                         help="Keep temporary files. Default: False")
-    parser.add_argument("--goofys_binary", required=True, default=None,
+    parser.add_argument("--goofys", required=True, default=None,
                         help="Path to goofys binary. Default: None")
     parser.add_argument("--loglevel", required=False, default="INFO",
                         help="Set logging level to INFO (default), WARNING or DEBUG.")
