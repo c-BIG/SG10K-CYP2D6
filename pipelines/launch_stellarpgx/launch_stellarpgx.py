@@ -91,14 +91,6 @@ def parse_args():
     if "s3" in args.bam:
         logging.info(f"S3 path detected, staging inputs...")
 
-        # mount s3 bucket
-        bucket = args.bam.replace("s3://", "").split("/")[0]
-        prefix = Path("/".join(args.bam.replace("s3://", "").split("/")[1:])).parent
-        mountpoint = f"{args.out_dir}/s3"
-        if not os.path.exists(mountpoint):
-            os.makedirs(mountpoint)
-        cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
-        try_run_command(cmd=cmd, cwd=args.launch_dir)
 
         # copy cram and crai files
         # cmd = f"cp {mountpoint}/args.sample_id.cram "
@@ -111,9 +103,27 @@ def parse_args():
             args.bam = local_bam
         # download from s3 if not
         else:
+            # mount s3 bucket
+            bucket = args.bam.replace("s3://", "").split("/")[0]
+            prefix = Path("/".join(args.bam.replace("s3://", "").split("/")[1:])).parent
+            mountpoint = f"{args.out_dir}/s3"
+            if not os.path.exists(mountpoint):
+                os.makedirs(mountpoint)
+            cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
+            try_run_command(cmd=cmd, cwd=args.launch_dir)
+
+            # copy relevant files
             cmd = f"cp {mountpoint}/{Path(args.bam).name}* {args.launch_dir}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
+
+            # unmount S3 bucket
+            cmd = f"umount {mountpoint}"
+            try_run_command(cmd=cmd, cwd=args.launch_dir)
+
+            # update path in args
             args.bam = local_bam
+
+
             # if args.input_suffix == ".bam":
             #     cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
             #     try_run_command(cmd=cmd, cwd=args.launch_dir)
