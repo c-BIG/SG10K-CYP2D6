@@ -89,8 +89,7 @@ def parse_args():
 
     # stage s3 files locally
     if "s3" in args.bam:
-        # /home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys sg10k-reanalysis-dev-s3-1:/WHB3383/e940f08c-aaf0-461e-a6d2-bc0816328e7f/output/try-1/ WHB3383
-        # s3://sg10k-reanalysis-dev-s3-1/WHB3374/8c6e6526-1150-491f-a47a-d453c571c1e1/output/try-1/WHB3374.cram
+        logging.info(f"S3 path detected, mounting inputs...")
         bucket = args.bam.replace("s3://", "").split("/")[0]
         prefix = Path("/".join(args.bam.replace("s3://", "").split("/")[1:])).parent
         mountpoint = f"{args.out_dir}/s3"
@@ -98,7 +97,6 @@ def parse_args():
             os.makedirs(mountpoint)
         cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
         try_run_command(cmd=cmd, cwd=args.launch_dir)
-        exit(1)
         # local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
         # # stage if file not already available locally
         # if local_bam.exists():
@@ -198,12 +196,12 @@ def run_stellarpgx(args):
 
 
 def done(args):
-    if not args.keep_tmp:
-        logging.info("Deleting temporary files...")
-        ref_fa_name = Path(args.ref_fa).name
-        bam_name = Path(args.bam).name
-        cmd = f"rm {ref_fa_name}* {bam_name}*"
-        try_run_command(cmd=cmd, cwd=args.launch_dir)
+    # if not args.keep_tmp:
+        # logging.info("Deleting temporary files...")
+        # ref_fa_name = Path(args.ref_fa).name
+        # bam_name = Path(args.bam).name
+        # cmd = f"rm {ref_fa_name}* {bam_name}*"
+        # try_run_command(cmd=cmd, cwd=args.launch_dir)
 
     # done
     logging.info(f"DONE: {args.out_dir}")
