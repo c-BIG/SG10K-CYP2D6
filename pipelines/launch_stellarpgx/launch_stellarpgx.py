@@ -97,6 +97,7 @@ def parse_args():
             os.makedirs(mountpoint)
         cmd = f"/home/jupyter-mgonzalezporta/workspace/tools/goofys/goofys {bucket}:{prefix} {mountpoint}"
         try_run_command(cmd=cmd, cwd=args.launch_dir)
+        args.bam = Path(mountpoint + "/" + Path(args.bam).name)
         # local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
         # # stage if file not already available locally
         # if local_bam.exists():
