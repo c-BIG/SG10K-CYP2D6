@@ -113,14 +113,13 @@ def parse_args():
         else:
             cmd = f"cp {mountpoint}/{Path(args.bam).name}* {args.launch_dir}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
-            exit(1)
+            args.bam = local_bam
             # if args.input_suffix == ".bam":
             #     cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
             #     try_run_command(cmd=cmd, cwd=args.launch_dir)
             # elif args.input_suffix == ".cram":
             #     cmd = f"aws s3 cp {args.bam}.crai {args.launch_dir}"
             #     try_run_command(cmd=cmd, cwd=args.launch_dir)
-            # args.bam = local_bam
 
     if not Path(args.bam).exists():
         logging.error(f"Couldn't find input file: {args.bam}")
@@ -203,12 +202,12 @@ def run_stellarpgx(args):
 
 
 def done(args):
-    # if not args.keep_tmp:
-        # logging.info("Deleting temporary files...")
-        # ref_fa_name = Path(args.ref_fa).name
-        # bam_name = Path(args.bam).name
-        # cmd = f"rm {ref_fa_name}* {bam_name}*"
-        # try_run_command(cmd=cmd, cwd=args.launch_dir)
+    if not args.keep_tmp:
+        logging.info("Deleting temporary files...")
+        ref_fa_name = Path(args.ref_fa).name
+        bam_name = Path(args.bam).name
+        cmd = f"rm {ref_fa_name}* {bam_name}*"
+        try_run_command(cmd=cmd, cwd=args.launch_dir)
 
     # done
     logging.info(f"DONE: {args.out_dir}")
