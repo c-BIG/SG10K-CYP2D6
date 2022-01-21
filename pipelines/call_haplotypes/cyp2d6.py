@@ -5,6 +5,37 @@ import re
 
 @dataclass
 class Haplotype:
+    """
+    Dataclass for storing CYP2D6 haplotype data. Use the from_string method to
+    initialise the class from a single raw string.
+
+    Attributes
+    ----------
+    raw : str
+        An unprocessed ("raw") haplotype string.
+    string : str
+        A processed (normalised) haplotype string.
+    star_alleles : collections.Counter
+        Counter used to keep track of star allele copy number.
+    star_allele_sep : str
+        Character used as the separator between star alleles.
+
+    Methods
+    -------
+    @classmethod
+    from_string(raw_haplotype : str)
+        Classmethod used to initialise a Haplotype instance. This method will
+        attempt to sanitise the given string by removing any minor alleles and
+        mutations. It will preserve copy numbers denoted by "x2" convention.
+
+    @staticmethod
+    lowest_star_allele(haplotype : Haplotype)
+        Returns a haplotype object's star allele with the
+        lowest numeric representation (useful for sorting):
+        e.g. "*4" is lower than "*10"
+
+    """
+
     raw: str = field(compare=False, repr=False)
     string: str
     star_alleles: collections.Counter = field(
@@ -13,7 +44,7 @@ class Haplotype:
     star_allele_sep = "+"
 
     @classmethod
-    def from_raw(cls, raw_haplotype):
+    def from_string(cls, raw_haplotype):
         # Split "*1+*36" into ["*1", "*36"]
         # This also drops any mutations such as "rs1065852"
         split_raw_star_alleles = [
@@ -65,6 +96,7 @@ class Haplotype:
 
     @staticmethod
     def lowest_star_allele(haplotype):
+        # Find the star allele with the lowest numeric value
         star_allele_ints = [
             int(number) for number in re.findall("\*(\d+)", haplotype.string)
         ]
@@ -73,6 +105,42 @@ class Haplotype:
 
 @dataclass
 class Diplotype:
+    """
+    Dataclass used to store CYP2D6 diplotype data. Use the from_string method to 
+    initialise from an unprocessed string.
+
+    Attributes
+    ----------
+    raw : str
+        Original "unprocessed" diplotype string.
+    string : str
+        Processed diplotype string, already sanitised and sorted.
+    filt: str
+        QC filter provided by the CYP2D6 caller (default None).
+    haplotypes : [Haplotype]
+        List of Haplotype objects created from the raw diplotype string.
+
+    Methods
+    -------
+    @classmethod
+    from_string(raw_diplotype : str, filt : str = None)
+        Creates a Diplotype object from a raw string. The Diplotype is automatically 
+        split into haplotypes, which are themselves turned into Haplotype objects 
+        and sanitised.
+
+    @classmethod
+    no_call(filt : str = None)
+        Creates an instance of Diplotype with "no_call" as the value of its "raw" 
+        and "string" attributes.
+
+    @staticmethod
+    is_valid(raw_diplotype : str)
+        Attemtps to fully match the provided raw_diplotype string against the 
+        following pattern: "\*\d+.*?/\*\d+.*?$"
+        Returns True only if the whole string matches the pattern, otherwise
+        returns False.
+    """
+
     raw: str = field(compare=False, repr=False)
     string: str
     filt: str = field(default=None, compare=False)
@@ -80,13 +148,17 @@ class Diplotype:
     hap_sep = "/"
 
     @classmethod
-    def from_raw(cls, raw_diplotype, filt=None):
+    def from_string(cls, raw_diplotype, filt=None):
+        # Validate raw_diplotype string
         if not cls.is_valid(raw_diplotype):
             raise ValueError(f"Invalid diplotype string: {raw_diplotype}")
 
+        # Identify haplotypes and sanitise them
         haplotypes = [
-            Haplotype.from_raw(hap) for hap in raw_diplotype.split(cls.hap_sep)
+            Haplotype.from_string(hap) for hap in raw_diplotype.split(cls.hap_sep)
         ]
+
+        # Sort haplotypes and turn them into the final diplotype string
         haplotypes.sort(key=Haplotype.lowest_star_allele)
         haplotype_strings = [haplotype.string for haplotype in haplotypes]
         diplotype_string = cls.hap_sep.join(haplotype_strings)
@@ -107,17 +179,3 @@ class Diplotype:
         else:
             return False
 
-
-if __name__ == "__main__":
-
-    with open("/home/torojr/SG10K-CYP2D6/_data/test.txt", "r") as f:
-        test_diplotypes = [line.strip() for line in f.readlines()]
-
-    for test_diplotype in test_diplotypes:
-        if test_diplotype != "None":
-            try:
-                d = Diplotype.from_raw(test_diplotype)
-            except Exception as e:
-                print("[ERROR]", test_diplotype, "->", e)
-
-            print(d.haplotypes)
