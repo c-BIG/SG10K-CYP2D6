@@ -72,6 +72,8 @@ def parse_args():
                         help="Path to output directory (also used as work directory). Default: ./")
     parser.add_argument("--keep_tmp", required=False, default=False, action="store_true",
                         help="Keep temporary files. Default: False")
+    parser.add_argument("--goofys", required=True, default=None,
+                        help="Path to goofys binary. Default: None")
     parser.add_argument("--loglevel", required=False, default="INFO",
                         help="Set logging level to INFO (default), WARNING or DEBUG.")
     args = parser.parse_args()
@@ -89,22 +91,35 @@ def parse_args():
 
     # stage s3 files locally
     if "s3" in args.bam:
+        logging.info(f"S3 path detected, staging inputs...")
+
         local_bam = Path(args.launch_dir + "/" + Path(args.bam).name)
         # stage if file not already available locally
         if local_bam.exists():
-            logging.info(f"S3 path detected, local copy already available: {args.bam}")
+            logging.info(f"Inputs already available locally, skipping copy...")
             args.bam = local_bam
+
         # download from s3 if not
         else:
-            logging.info(f"S3 path detected, staging inputs: {args.bam}")
-            cmd = f"aws s3 cp {args.bam} {args.launch_dir}"
+            # mount s3 bucket
+            bucket = args.bam.replace("s3://", "").split("/")[0]
+            prefix = Path("/".join(args.bam.replace("s3://", "").split("/")[1:])).parent
+            mountpoint = f"{args.out_dir}/s3"
+            if not os.path.exists(mountpoint):
+                os.makedirs(mountpoint)
+            cmd = f"{args.goofys} {bucket}:{prefix} {mountpoint}"
             try_run_command(cmd=cmd, cwd=args.launch_dir)
-            if args.input_suffix == ".bam":
-                cmd = f"aws s3 cp {args.bam}.bai {args.launch_dir}"
-                try_run_command(cmd=cmd, cwd=args.launch_dir)
-            elif args.input_suffix == ".cram":
-                cmd = f"aws s3 cp {args.bam}.crai {args.launch_dir}"
-                try_run_command(cmd=cmd, cwd=args.launch_dir)
+
+            # copy relevant files
+            # NOTE: this copy can be skipped altogether by mounting the bucket directly inside the docker container (future work)
+            cmd = f"cp {mountpoint}/{Path(args.bam).name}* {args.launch_dir}"
+            try_run_command(cmd=cmd, cwd=args.launch_dir)
+
+            # unmount S3 bucket
+            cmd = f"umount {mountpoint} && rmdir {mountpoint}"
+            try_run_command(cmd=cmd, cwd=args.launch_dir)
+
+            # update path in args
             args.bam = local_bam
 
     if not Path(args.bam).exists():
@@ -153,15 +168,10 @@ def prepare_stellarpgx_inputs(args):
     nf_fa = f"/data/{ref_fa_name}"
 
     # input files: bam/cram and index
-    # note: hardlinks are not needed because we'll call subprocess from launch_dir (see parse_args)
     bam_name = Path(args.bam).name
     if args.input_suffix == ".bam":
-        # Path(f"{args.launch_dir}/{bam_name}").hardlink_to(args.bam)
-        # Path(f"{args.launch_dir}/{bam_name}.bai").hardlink_to(f"{args.bam}.bai")
         nf_bam = f"/data/%s" % bam_name.replace(".bam", ".*{bam,bai}")
     elif args.input_suffix == ".cram":
-        # Path(f"{args.launch_dir}/{bam_name}").hardlink_to(args.bam)
-        # Path(f"{args.launch_dir}/{bam_name}.crai").hardlink_to(f"{args.bam}.crai")
         nf_bam = f"/data/%s" % bam_name.replace(".cram", ".*{cram,crai}")
     else:
         logging.error("Unrecognised input file type; must be .bam or .cram.")

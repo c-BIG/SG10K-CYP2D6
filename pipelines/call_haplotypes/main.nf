@@ -171,7 +171,7 @@ reference = channel.fromPath(final_params.reference)
 
 cram = channel.fromPath(final_params.cram_list)
     .splitText(by: 1)
-    .map{ cram -> tuple( file(cram).getBaseName(), file(cram.trim()), file(cram.trim() + ".crai") ) }
+    .map{ cram -> tuple( file(cram.trim()).getBaseName(), file(cram.trim()), file(cram.trim() + ".crai") ) }
 
 inputs = cram.combine(reference)
 
