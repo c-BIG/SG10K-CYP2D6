@@ -42,6 +42,62 @@ cat cyrius.done | grep ',0'
 WHB3978/cyrius/WHB3978.tsv,0
 ```
 
+## Troubleshooting failed executions
+
+### aldy: WHB3694
+
+```bash
+cd /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/troubleshooting/WHB3694/
+
+# prepare work dir
+aws s3 cp s3://sg10k-reanalysis-dev-s3-1/WHB3694/4819db9f-1eaf-43ef-9324-bd32a5321aed/output/try-1/WHB3694.cram ./
+# BLOCKED
+# warning: Skipping file s3://sg10k-reanalysis-dev-s3-1/WHB3694/4819db9f-1eaf-43ef-9324-bd32a5321aed/output/try-1/WHB3694.cram. Object is of storage class GLACIER. Unable to perform download operations on GLACIER objects. You must restore the object to be able to perform the operation. See aws s3 download help for additional parameter options to ignore or force these transfers.
+aws s3 cp s3://sg10k-reanalysis-dev-s3-1/WHB3694/4819db9f-1eaf-43ef-9324-bd32a5321aed/output/try-1/WHB3694.cram.crai ./
+ln /data/SG10K-CYP2D6/s3/sg10k-cyp2d6/reference/hg38.fasta ./
+ln /data/SG10K-CYP2D6/s3/sg10k-cyp2d6/reference/hg38.fasta.fai ./
+
+# run aldy (see SG10K-CYP2D6/tools/aldy/README.md)
+docker run -it -v `pwd`:/data aldy:3.3 aldy genotype \
+    --profile illumina \
+    --gene CYP2D6 \
+    --reference hg38.fasta \
+    --output WHB3694-CYP2D6.aldy \
+    WHB3694.cram
+```
+
+### aldy: WHB4149
+
+Manually launch following instructions above
+
+### aldy: WHB4689
+
+Manually launch following instructions above
+
+### Cyrius: WHB3978
+
+```bash
+cd /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/troubleshooting/WHB3978
+
+# prepare work dir
+aws s3 cp s3://sg10k-reanalysis-dev-s3-1/WHB3978/a3067955-ea43-40d6-94f7-e25c8f3b08f6/output/try-1/WHB3978.cram ./
+# BLOCKED
+# warning: Skipping file s3://sg10k-reanalysis-dev-s3-1/WHB3978/a3067955-ea43-40d6-94f7-e25c8f3b08f6/output/try-1/WHB3978.cram. Object is of storage class GLACIER. Unable to perform download operations on GLACIER objects. You must restore the object to be able to perform the operation. See aws s3 download help for additional parameter options to ignore or force these transfers
+aws s3 cp s3://sg10k-reanalysis-dev-s3-1/WHB3978/a3067955-ea43-40d6-94f7-e25c8f3b08f6/output/try-1/WHB3978.cram.crai ./
+ln /data/SG10K-CYP2D6/s3/sg10k-cyp2d6/reference/hg38.fasta ./
+ln /data/SG10K-CYP2D6/s3/sg10k-cyp2d6/reference/hg38.fasta.fai ./
+echo "/data/WHB3978.cram" > manifest.txt
+
+# run cyrius (see SG10K-CYP2D6/tools/cyrius/README.md)
+docker run -it -v `pwd`:/data cyrius:1.1.1 star_caller.py \
+    --manifest manifest.txt \
+    --genome 38 \
+    --reference hg38.fasta \
+    --prefix WHB3978 \
+    --outDir ./
+```
+
+
 # Step 2: Launching StellarPGx (launch_stellar_pgx.py)
 
 ```bash
@@ -75,6 +131,7 @@ do
 done > stellarpgx.done
 ## failed samples
 cat stellarpgx.done | grep -v ',1'
+## no failed samples
 ```
 
 # Step 3: Resolving consensus haplotype calls
