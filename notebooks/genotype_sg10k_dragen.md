@@ -62,17 +62,42 @@ docker run -it -v `pwd`:/data aldy:3.3 aldy genotype \
     --profile illumina \
     --gene CYP2D6 \
     --reference hg38.fasta \
-    --output WHB3694-CYP2D6.aldy \
+    --output WHB3694.aldy \
     WHB3694.cram
+
+# manual execution completed successfully
+# upload results to s3
+cp WHB3694.aldy \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3694/aldy/
+aws s3 sync \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3694/aldy/ \
+    s3://sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3694/aldy/
 ```
 
 ### aldy: WHB4149
 
 Manually launch following instructions above
 
+```bash
+# manual execution completed with an error
+# upload logs to s3 and notify authors
+aws s3 sync /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB4149/aldy/ \
+s3://sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB4149/aldy/
+```
+
 ### aldy: WHB4689
 
 Manually launch following instructions above
+
+```bash
+# manual execution completed successfully
+# upload results to s3
+cp WHB4689.aldy \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB4689/aldy/
+aws s3 sync \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB4689/aldy/ \
+    s3://sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB4689/aldy/
+```
 
 ### Cyrius: WHB3978
 
@@ -95,6 +120,16 @@ docker run -it -v `pwd`:/data cyrius:1.1.1 star_caller.py \
     --reference hg38.fasta \
     --prefix WHB3978 \
     --outDir ./
+
+# manual execution completed succesfully
+# upload results to s3
+cp WHB3978.json \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3978/cyrius/
+cp WHB3978.tsv \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3978/cyrius/
+aws s3 sync \
+    /data/SG10K-CYP2D6/s3/sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3978/cyrius/ \
+    s3://sg10k-cyp2d6-workspace/call_haplotypes/sg10k-dragen/outputs/WHB3978/cyrius/
 ```
 
 
