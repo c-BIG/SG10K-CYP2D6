@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 import collections
 import re
 
@@ -13,7 +13,7 @@ class Haplotype:
     ----------
     raw : str
         An unprocessed ("raw") haplotype string.
-    string : str
+    parsed : str
         A processed (normalised) haplotype string.
     star_alleles : collections.Counter
         Counter used to keep track of star allele copy number.
@@ -37,7 +37,7 @@ class Haplotype:
     """
 
     raw: str = field(compare=False, repr=False)
-    string: str
+    parsed: str
     star_alleles: collections.Counter = field(
         default_factory=collections.Counter, compare=False, repr=False
     )
@@ -90,7 +90,7 @@ class Haplotype:
 
         return cls(
             raw=raw_haplotype,
-            string=haplotype_string,
+            parsed=haplotype_string,
             star_alleles=star_alleles_counter,
         )
 
@@ -98,7 +98,7 @@ class Haplotype:
     def lowest_star_allele(haplotype):
         # Find the star allele with the lowest numeric value
         star_allele_ints = [
-            int(number) for number in re.findall("\*(\d+)", haplotype.string)
+            int(number) for number in re.findall("\*(\d+)", haplotype.parsed)
         ]
         return min(star_allele_ints)
 
@@ -106,7 +106,7 @@ class Haplotype:
 @dataclass
 class Diplotype:
     """
-    Dataclass used to store CYP2D6 diplotype data. Use the from_string method to 
+    Dataclass used to store CYP2D6 diplotype data. Use the from_string method to
     initialise from an unprocessed string.
 
     Attributes
@@ -124,31 +124,35 @@ class Diplotype:
     -------
     @classmethod
     from_string(raw_diplotype : str, filt : str = None)
-        Creates a Diplotype object from a raw string. The Diplotype is automatically 
-        split into haplotypes, which are themselves turned into Haplotype objects 
+        Creates a Diplotype object from a raw string. The Diplotype is automatically
+        split into haplotypes, which are themselves turned into Haplotype objects
         and sanitised.
 
     @classmethod
     no_call(filt : str = None)
-        Creates an instance of Diplotype with "no_call" as the value of its "raw" 
+        Creates an instance of Diplotype with "no_call" as the value of its "raw"
         and "string" attributes.
 
     @staticmethod
     is_valid(raw_diplotype : str)
-        Attemtps to fully match the provided raw_diplotype string against the 
+        Attemtps to fully match the provided raw_diplotype string against the
         following pattern: "\*\d+.*?/\*\d+.*?$"
         Returns True only if the whole string matches the pattern, otherwise
         returns False.
     """
 
     raw: str = field(compare=False, repr=False)
-    string: str
+    parsed: str
     filt: str = field(default=None, compare=False)
     haplotypes: list = field(default_factory=list, repr=False, compare=False)
     hap_sep = "/"
 
     @classmethod
     def from_string(cls, raw_diplotype, filt=None):
+        # no_call
+        if raw_diplotype == "no_call":
+            return cls.no_call()
+
         # Validate raw_diplotype string
         if not cls.is_valid(raw_diplotype):
             raise ValueError(f"Invalid diplotype string: {raw_diplotype}")
@@ -160,22 +164,26 @@ class Diplotype:
 
         # Sort haplotypes and turn them into the final diplotype string
         haplotypes.sort(key=Haplotype.lowest_star_allele)
-        haplotype_strings = [haplotype.string for haplotype in haplotypes]
+        haplotype_strings = [haplotype.parsed for haplotype in haplotypes]
         diplotype_string = cls.hap_sep.join(haplotype_strings)
         return cls(
-            raw=raw_diplotype, string=diplotype_string, filt=filt, haplotypes=haplotypes
+            raw=raw_diplotype, parsed=diplotype_string, filt=filt, haplotypes=haplotypes
         )
 
     @classmethod
-    def no_call(cls, filt=None):
-        return cls(raw="no_call", string="no_call", filt=filt, haplotypes=[])
+    def no_call(cls):
+        return cls(raw="no_call", parsed="no_call", filt=None, haplotypes=[])
 
     @staticmethod
     def is_valid(raw_diplotype):
-        pattern = "\*\d+.*?/\*\d+.*?$"
-        match = re.fullmatch(pattern, raw_diplotype)
+        haplotype_pattern = r"(?:\*\d+(?:[A-Z])?(?:x\d)?(?:\.\w*)?(?:(?:\+\w+)+)?(?:\+)?)+"
+        diplotype_pattern = f"{haplotype_pattern}/{haplotype_pattern}"
+        match = re.fullmatch(diplotype_pattern, raw_diplotype)
         if match:
             return True
         else:
             return False
 
+    @property
+    def d(self):
+        return asdict(self)
