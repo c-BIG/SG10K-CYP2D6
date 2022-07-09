@@ -55,3 +55,8 @@ Any other call combinations are reported to have no consensus (`None` type in Py
 - `star_allele_frequency` array of star allele frequencies within the ancestry group
 
 All `count` and `frequency` columns are computed based on the ancestry group of each diplotype, haplotype and star allele, e.g: the diplotype frequency of "*1/*1" for "C" is `number of "*1/*1" diplotypes seen in "C" / total number of "C" diplotypes`.
+
+# Changelog
+## v2
+- Haplotypes and star allele counts/frequencies were being reported incorrectly. The issue was a missing multiplication of the values by the diplotype count, which has now been fixed.
+- Exported dataset in JSON format as well as original TSV file
