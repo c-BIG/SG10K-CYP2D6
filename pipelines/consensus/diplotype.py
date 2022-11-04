@@ -8,32 +8,6 @@ class Haplotype:
     """
     Dataclass for storing CYP2D6 haplotype data. Use the from_string method to
     initialise the class from a single raw string.
-
-    Attributes
-    ----------
-    raw : str
-        An unprocessed ("raw") haplotype string.
-    parsed : str
-        A processed (normalised) haplotype string.
-    star_alleles : collections.Counter
-        Counter used to keep track of star allele copy number.
-    star_allele_sep : str
-        Character used as the separator between star alleles.
-
-    Methods
-    -------
-    @classmethod
-    from_string(raw_haplotype : str)
-        Classmethod used to initialise a Haplotype instance. This method will
-        attempt to sanitise the given string by removing any minor alleles and
-        mutations. It will preserve copy numbers denoted by "x2" convention.
-
-    @staticmethod
-    lowest_star_allele(haplotype : Haplotype)
-        Returns a haplotype object's star allele with the
-        lowest numeric representation (useful for sorting):
-        e.g. "*4" is lower than "*10"
-
     """
 
     raw: str = field(compare=False, repr=False)
@@ -43,8 +17,15 @@ class Haplotype:
     )
     star_allele_sep = "+"
 
+
     @classmethod
     def from_string(cls, raw_haplotype):
+        """
+        Classmethod used to initialise a Haplotype instance. This method will
+        attempt to sanitise the given string by removing any minor alleles and
+        mutations. It will preserve copy numbers denoted by "x2" convention.
+        """
+
         # Split "*1+*36" into ["*1", "*36"]
         # This also drops any mutations such as "rs1065852"
         split_raw_star_alleles = [
@@ -94,8 +75,15 @@ class Haplotype:
             star_alleles=star_alleles_counter,
         )
 
+
     @staticmethod
     def lowest_star_allele(haplotype):
+        """
+        Returns a haplotype object's star allele with the
+        lowest numeric representation (useful for sorting):
+        e.g. "*4" is lower than "*10"
+        """
+
         # Find the star allele with the lowest numeric value
         star_allele_ints = [
             int(number) for number in re.findall("\*(\d+)", haplotype.parsed)
@@ -108,54 +96,31 @@ class Diplotype:
     """
     Dataclass used to store CYP2D6 diplotype data. Use the from_string method to
     initialise from an unprocessed string.
-
-    Attributes
-    ----------
-    raw : str
-        Original "unprocessed" diplotype string.
-    string : str
-        Processed diplotype string, already sanitised and sorted.
-    filt: str
-        QC filter provided by the CYP2D6 caller (default None).
-    haplotypes : [Haplotype]
-        List of Haplotype objects created from the raw diplotype string.
-
-    Methods
-    -------
-    @classmethod
-    from_string(raw_diplotype : str, filt : str = None)
-        Creates a Diplotype object from a raw string. The Diplotype is automatically
-        split into haplotypes, which are themselves turned into Haplotype objects
-        and sanitised.
-
-    @classmethod
-    no_call(filt : str = None)
-        Creates an instance of Diplotype with "no_call" as the value of its "raw"
-        and "string" attributes.
-
-    @staticmethod
-    is_valid(raw_diplotype : str)
-        Attemtps to fully match the provided raw_diplotype string against the
-        following pattern: "\*\d+.*?/\*\d+.*?$"
-        Returns True only if the whole string matches the pattern, otherwise
-        returns False.
     """
 
     raw: str = field(compare=False, repr=False)
     parsed: str
     filt: str = field(default=None, compare=False)
     haplotypes: list = field(default_factory=list, repr=False, compare=False)
+    is_novel: bool = field(default=False)
     hap_sep = "/"
+
 
     @classmethod
     def from_string(cls, raw_diplotype, filt=None):
+        """
+        Creates a Diplotype object from a raw string. The raw diplotype string is 
+        automatically split into haplotypes, which are themselves turned into 
+        Haplotype objects and sanitised.
+        """
+
         # no_call
         if raw_diplotype == "no_call":
             return cls.no_call()
 
         # Validate raw_diplotype string
         if not cls.is_valid(raw_diplotype):
-            raise ValueError(f"Invalid diplotype string: {raw_diplotype}")
+            return cls(raw=raw_diplotype, parsed="invalid", filt=filt)
 
         # Identify haplotypes and sanitise them
         haplotypes = [
@@ -170,12 +135,38 @@ class Diplotype:
             raw=raw_diplotype, parsed=diplotype_string, filt=filt, haplotypes=haplotypes
         )
 
+
     @classmethod
     def no_call(cls):
+        """
+        Creates an instance of Diplotype with "no_call" as the value of its "raw"
+        and "string" attributes.
+        """
+
         return cls(raw="no_call", parsed="no_call", filt=None, haplotypes=[])
+
+
+    @classmethod
+    def novel_allele(cls, raw_diplotype, filt=None):
+        """
+        Same functionality as the "from_string" method, except with the "novel"
+        property set to True.
+        """
+
+        diplotype = cls.from_string(raw_diplotype, filt)
+        diplotype.is_novel = True
+        return diplotype
+
 
     @staticmethod
     def is_valid(raw_diplotype):
+        """
+        Attemtps to fully match the provided raw_diplotype string against the
+        following pattern: "\*\d+.*?/\*\d+.*?$"
+        Returns True only if the whole string matches the pattern, otherwise
+        returns False.
+        """
+
         haplotype_pattern = r"(?:\*\d+(?:[A-Z])?(?:x\d)?(?:\.\w*)?(?:(?:\+\w+)+)?(?:\+)?)+"
         diplotype_pattern = f"{haplotype_pattern}/{haplotype_pattern}"
         match = re.fullmatch(diplotype_pattern, raw_diplotype)
@@ -183,7 +174,3 @@ class Diplotype:
             return True
         else:
             return False
-
-    @property
-    def d(self):
-        return asdict(self)

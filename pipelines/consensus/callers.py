@@ -3,98 +3,96 @@ import json
 import logging
 from diplotype import Diplotype
 import pandas as pd
-import sys
 
 
 class Cyp2d6CallerOutput:
-    def __init__(self, diplotype):
-        self.diplotype = diplotype
 
-    def as_dict(self):
-        pass
+    def __init__(self, file_path, caller, sample_name=None, diplotypes=[]):
+        self.file_path = Path(file_path).resolve()
+        self.caller = caller
+        self.sample_name = sample_name
+        self.diplotypes = diplotypes
 
-    @staticmethod
-    def _parse_diplotype(diplotype_string, filt=None, context=""):
-        logging.info(f'Parsing string "{diplotype_string}" (filt={filt})')
-        if Diplotype.is_valid(diplotype_string):
-            return Diplotype.from_string(diplotype_string, filt)
-        elif diplotype_string.lower() == "no_call":
-            return Diplotype.no_call()
-        else:
-            
-            logging.warning(f"[{context}]" + f"Invalid diplotype string: \"{diplotype_string}\", returning \"no_call\"")
-            return Diplotype.no_call()
 
     @classmethod
-    def cyrius(cls, cyrius_json):
+    def cyrius(cls, file_path, sample_name=None):
         logging.info("Extracting Cyrius output")
-        file_path = Path(cyrius_json).resolve()
+        file_path = Path(file_path).resolve()
 
         if not file_path.exists():
             raise FileNotFoundError(file_path)
 
-        with file_path.open("r") as f:
-            data = f.read()
+        data = file_path.read_text()
 
-        cyrius_json = json.loads(data)
-        samples = list(cyrius_json.keys())
+        cyrius_dict = json.loads(data)
+        samples = list(cyrius_dict.keys())
         if len(samples) > 1:
             logging.warning(
                 f"{len(samples)} sample(s) found in Cyrius json, only one sample will be processed"
             )
-
-        sample = samples[0]
-        genotype = cyrius_json[sample]["Genotype"]
-        filt = cyrius_json[sample]["Filter"]
-        logging.debug(f'Sample name: "{sample}"')
+        if not sample_name:
+            sample_name = samples[0]
+        sample_dict = cyrius_dict[sample_name]
+        genotype = sample_dict["Genotype"]
+        filt = sample_dict["Filter"]
+        logging.debug(f'Sample Name: "{sample_name}"')
         logging.debug(f'Genotype: "{genotype}"')
         logging.debug(f'Filt: "{filt}"')
 
+        diplotypes = []
         if genotype is None:
-            genotype = "no_call"
-        
-        diplotype = cls._parse_diplotype(genotype, filt, context="cyrius")
+            diplotypes.append(Diplotype.no_call())
+        elif ";" in genotype:
+            logging.warning("More than one genotype found in Cyrius output")
+            genotypes = [gt.replace("_", "/") for gt in genotype.split(";")]
+            for genotype in genotypes:
+                diplotypes.append(Diplotype.from_string(genotype, filt=filt))
+        else:
+            diplotypes.append(Diplotype.from_string(genotype, filt=filt))
 
-        return cls(diplotype)
+        return cls(file_path, caller="cyrius", sample_name=sample_name, diplotypes=diplotypes)
+
 
     @classmethod
-    def aldy(cls, aldy_tsv):
+    def aldy(cls, file_path, sample_name=None):
         logging.info("Extracting Aldy output")
-        file_path = Path(aldy_tsv).resolve()
+        file_path = Path(file_path).resolve()
         if not file_path.exists():
             raise FileNotFoundError(file_path)
 
+        diplotypes = []
         if file_path.stat().st_size == 0:
-            diplotype = Diplotype.no_call()
-            return cls(diplotype)
-
-        with file_path.open("r") as f:
-            rows_to_skip = []
-            column_names = []
-            for i, line in enumerate(f):
-                if line.startswith("#"):
-                    rows_to_skip.append(i)
-                if line.startswith("#Sample"):
-                    line = line.replace("#", "")
-                    column_names = [col.strip() for col in line.split()]
-                    
-
-        df = pd.read_csv(file_path, sep="\t", names=column_names, skiprows=rows_to_skip)
-        unique_genotypes = df["Major"].unique()
-        if len(unique_genotypes) > 0:
-            if len(unique_genotypes) > 1:
-                logging.warning(
-                    f"More than one genotype found in Aldy output, only first solution will be processed"
-                )
-            diplotype = cls._parse_diplotype(unique_genotypes[0], context="aldy")
+            diplotypes.append(Diplotype.no_call())
         else:
-            diplotype = Diplotype.no_call()
-        return cls(diplotype)
+            with file_path.open("r") as f:
+                rows_to_skip = []
+                column_names = []
+                for i, line in enumerate(f):
+                    if line.startswith("#"):
+                        rows_to_skip.append(i)
+                    if line.startswith("#Sample"):
+                        line = line.replace("#", "")
+                        column_names = [col.strip() for col in line.split()]
+                        
+            df = pd.read_csv(file_path, sep="\t", names=column_names, skiprows=rows_to_skip)
+            unique_genotypes = df["Major"].unique()
+            if len(unique_genotypes) > 0:
+                for genotype in unique_genotypes:
+                    logging.warning(f"More than one genotype found in Aldy output")
+                    diplotypes.append(Diplotype.from_string(genotype))
+            else:
+                diplotypes.append(Diplotype.no_call())
+
+            if not sample_name:
+                sample_name = df["Sample"].unique()[0]
+
+        return cls(file_path, caller="aldy", sample_name=sample_name, diplotypes=diplotypes)
+
 
     @classmethod
-    def stellarpgx(cls, stellarpgx_alleles_file):
+    def stellarpgx(cls, file_path, sample_name=None):
         logging.info("Extracting StellarPGx output")
-        file_path = Path(stellarpgx_alleles_file).resolve()
+        file_path = Path(file_path).resolve()
         if not file_path.exists():
             raise FileNotFoundError(file_path)
 
@@ -102,13 +100,27 @@ class Cyp2d6CallerOutput:
             lines = [line.strip() for line in f.readlines() if len(line) > 0]
 
         result = None
+        likely_background_alleles = None
+        novel = False
         for i, line in enumerate(lines):
+            if "novel allele" in line:
+                novel = True
+
             if line.startswith("Result"):
-                result = lines[i + 1].strip()
+                if "novel allele" not in lines[i + 1]:
+                    result = lines[i + 1].strip()
+            elif line.startswith("Likely background alleles"):
+                likely_background_alleles = lines[i + 1].strip().replace("[", "").replace("]", "")
 
         if result:
-            diplotype = cls._parse_diplotype(result, context="stellarpgx")
+            if result.lower() == "no_call":
+                diplotype = Diplotype.no_call()
+            else:
+                diplotype = Diplotype.from_string(result)
+        elif likely_background_alleles and novel:
+            diplotype = Diplotype.novel_allele(likely_background_alleles)
         else:
             diplotype = Diplotype.no_call()
 
-        return cls(diplotype)
+        return cls(file_path, caller="stellarpgx", sample_name=sample_name, diplotypes=[diplotype])
+
