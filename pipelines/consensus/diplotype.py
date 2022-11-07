@@ -4,6 +4,56 @@ import re
 
 
 @dataclass
+class StarAllele:
+    """
+    """
+
+    raw: str
+    major: str
+    minor: str
+    variants: list 
+    copy_number: int
+
+
+    @classmethod
+    def from_string(cls, raw_star_allele):
+        if not cls.is_valid(raw_star_allele):
+            raise ValueError(f"Invalid star allele string: {raw_star_allele}")
+
+        major_pattern = "\*\d+"
+        major_match = re.search(major_pattern, raw_star_allele)
+        major = major_match.group(0)
+        
+        minor_pattern = "\*\d+([A-Z])?(\.\d+)?(\.ALDY)?"
+        minor_match = re.search(minor_pattern, raw_star_allele)
+        minor = minor_match.group(0)
+
+        variants_pattern = "\+(rs\d+)"
+        variants = re.findall(variants_pattern, raw_star_allele)
+
+        copy_number_pattern = "x(\d+)"
+        copy_number_match = re.search(copy_number_pattern, raw_star_allele)
+        if copy_number_match:
+            copy_number = int(copy_number_match.group(1))
+        else:
+            copy_number = 1
+
+        return cls(raw_star_allele, major, minor, variants, copy_number)
+
+
+    @staticmethod
+    def is_valid(raw_star_allele):
+        pattern = "(\+)?\*\d+([A-Z])?(\.\d+)?(\.ALDY)?(x\d+)?(\+rs\d+)*?"
+        fullmatch = re.fullmatch(pattern, raw_star_allele)
+        
+        if fullmatch:
+            return True
+        else:
+            return False
+
+
+
+@dataclass
 class Haplotype:
     """
     Dataclass for storing CYP2D6 haplotype data. Use the from_string method to
