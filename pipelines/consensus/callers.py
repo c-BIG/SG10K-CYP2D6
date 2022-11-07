@@ -43,7 +43,7 @@ class Cyp2d6CallerOutput:
         if genotype is None:
             diplotypes.append(Diplotype.no_call())
         elif ";" in genotype:
-            logging.warning("More than one genotype found in Cyrius output")
+            logging.warning(f"More than one genotype found in Cyrius output {file_path}")
             genotypes = [gt.replace("_", "/") for gt in genotype.split(";")]
             for genotype in genotypes:
                 diplotypes.append(Diplotype.from_string(genotype, filt=filt))
@@ -75,16 +75,18 @@ class Cyp2d6CallerOutput:
                         column_names = [col.strip() for col in line.split()]
                         
             df = pd.read_csv(file_path, sep="\t", names=column_names, skiprows=rows_to_skip)
-            unique_genotypes = df["Major"].unique()
-            if len(unique_genotypes) > 0:
-                for genotype in unique_genotypes:
-                    logging.warning(f"More than one genotype found in Aldy output")
-                    diplotypes.append(Diplotype.from_string(genotype))
-            else:
+            unique_genotypes = df["Major"].dropna().unique()
+            if len(unique_genotypes) == 0:
                 diplotypes.append(Diplotype.no_call())
+            elif len(unique_genotypes) == 1:
+                diplotypes.append(Diplotype.from_string(unique_genotypes[0]))
+            elif len(unique_genotypes) > 1:
+                logging.warning(f"More than one genotype found in Aldy output {file_path}")
+                for genotype in unique_genotypes:
+                    diplotypes.append(Diplotype.from_string(genotype))
 
             if not sample_name:
-                sample_name = df["Sample"].unique()[0]
+                sample_name = df["Sample"].dropna().unique()[0]
 
         return cls(file_path, caller="aldy", sample_name=sample_name, diplotypes=diplotypes)
 
