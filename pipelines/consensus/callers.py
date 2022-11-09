@@ -39,16 +39,21 @@ class Cyp2d6CallerOutput:
         logging.debug(f'Genotype: "{genotype}"')
         logging.debug(f'Filt: "{filt}"')
 
+        genotypes = []
         diplotypes = []
         if genotype is None:
             diplotypes.append(Diplotype.no_call())
         elif ";" in genotype:
             logging.warning(f"More than one genotype found in Cyrius output {file_path}")
             genotypes = [gt.replace("_", "/") for gt in genotype.split(";")]
-            for genotype in genotypes:
-                diplotypes.append(Diplotype.from_string(genotype, filt=filt))
         else:
-            diplotypes.append(Diplotype.from_string(genotype, filt=filt))
+            genotypes.append(genotype)
+        
+        for genotype in genotypes:
+            if Diplotype.is_valid(genotype):
+                diplotypes.append(Diplotype.from_string(genotype, filt=filt))
+            else:
+                diplotypes.append(Diplotype.invalid(genotype))
 
         return cls(file_path, caller="cyrius", sample_name=sample_name, diplotypes=diplotypes)
 
@@ -75,15 +80,22 @@ class Cyp2d6CallerOutput:
                         column_names = [col.strip() for col in line.split()]
                         
             df = pd.read_csv(file_path, sep="\t", names=column_names, skiprows=rows_to_skip)
-            unique_genotypes = df["Major"].dropna().unique()
-            if len(unique_genotypes) == 0:
+
+            genotypes = df["Major"].dropna().unique()
+
+            if len(genotypes) == 0:
                 diplotypes.append(Diplotype.no_call())
-            elif len(unique_genotypes) == 1:
-                diplotypes.append(Diplotype.from_string(unique_genotypes[0]))
-            elif len(unique_genotypes) > 1:
+            elif len(genotypes) > 1:
                 logging.warning(f"More than one genotype found in Aldy output {file_path}")
-                for genotype in unique_genotypes:
-                    diplotypes.append(Diplotype.from_string(genotype))
+            
+            for genotype in genotypes:
+                if Diplotype.is_valid(genotype):
+                    if "+rs" in genotype:
+                        diplotypes.append(Diplotype.novel_allele(genotype))
+                    else:
+                        diplotypes.append(Diplotype.from_string(genotype))
+                else:
+                    diplotypes.append(Diplotype.invalid(genotype))
 
             if not sample_name:
                 sample_name = df["Sample"].dropna().unique()[0]
@@ -117,8 +129,10 @@ class Cyp2d6CallerOutput:
         if result:
             if result.lower() == "no_call":
                 diplotype = Diplotype.no_call()
-            else:
+            elif Diplotype.is_valid(result):
                 diplotype = Diplotype.from_string(result)
+            else:
+                diplotype = Diplotype.invalid(result)
         elif likely_background_alleles and novel:
             diplotype = Diplotype.novel_allele(likely_background_alleles)
         else:
