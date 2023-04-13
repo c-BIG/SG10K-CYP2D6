@@ -64,16 +64,37 @@ profiles {
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--bam", required=True, default=None,
-                        help="Path to input BAM or CRAM. Default: None.")
-    parser.add_argument("--ref_fa", required=False, default=None,
-                        help="Path to genome fasta. Default: None.")
-    parser.add_argument("--out_dir", required=False, default=".",
-                        help="Path to output directory (also used as work directory). Default: ./")
-    parser.add_argument("--keep_tmp", required=False, default=False, action="store_true",
-                        help="Keep temporary files. Default: False")
-    parser.add_argument("--loglevel", required=False, default="INFO",
-                        help="Set logging level to INFO (default), WARNING or DEBUG.")
+    parser.add_argument(
+        "--bam",
+        required=True,
+        default=None,
+        help="Path to input BAM or CRAM. Default: None.",
+    )
+    parser.add_argument(
+        "--ref_fa",
+        required=False,
+        default=None,
+        help="Path to genome fasta. Default: None.",
+    )
+    parser.add_argument(
+        "--out_dir",
+        required=False,
+        default=".",
+        help="Path to output directory (also used as work directory). Default: ./",
+    )
+    parser.add_argument(
+        "--keep_tmp",
+        required=False,
+        default=False,
+        action="store_true",
+        help="Keep temporary files. Default: False",
+    )
+    parser.add_argument(
+        "--loglevel",
+        required=False,
+        default="INFO",
+        help="Set logging level to INFO (default), WARNING or DEBUG.",
+    )
     args = parser.parse_args()
 
     set_logging(args.loglevel)
@@ -123,7 +144,9 @@ def set_logging(loglevel):
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
         raise ValueError(f"Invalid log level: {loglevel}")
-    logging.basicConfig(format="%(asctime)s %(levelname)-8s %(message)s", level=numeric_level)
+    logging.basicConfig(
+        format="%(asctime)s %(levelname)-8s %(message)s", level=numeric_level
+    )
 
 
 def try_run_command(cmd, cwd=os.getcwd(), return_stdout=False):
@@ -134,7 +157,7 @@ def try_run_command(cmd, cwd=os.getcwd(), return_stdout=False):
             stdout = p.stdout.read().decode("utf-8").strip()
             return stdout
         else:
-            p = subprocess.run(cmd, shell=True, cwd = cwd)
+            p = subprocess.run(cmd, shell=True, cwd=cwd)
     except:
         logging.error(f"Error when running command: {cmd}")
         exit(1)
