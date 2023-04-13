@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-import collections
 import re
+from typing import Self
 
 
 @dataclass(order=True)
@@ -17,10 +17,10 @@ class StarAllele:
     minor: str
     copy_number: int
     variants: list[str] = field(default_factory=list)
-    regex_pattern = "\*\d+(?:[A-Z])?(?:\.\d+)?(?:\.ALDY)?(?:x\d+)?(?:\+rs\d+)*"
+    regex_pattern = r"\*\d+(?:[A-Z])?(?:\.\d+)?(?:\.ALDY)?(?:x\d+)?(?:\+rs\d+)*"
 
     @classmethod
-    def from_string(cls, raw_star_allele):
+    def from_string(cls, raw_star_allele: str) -> Self:
         if not cls.is_valid(raw_star_allele):
             raise ValueError(f"Invalid star allele string: {raw_star_allele}")
 
@@ -30,14 +30,14 @@ class StarAllele:
 
         sort_value = int(re.search("\*(\d+)", major).group(1))
 
-        minor_pattern = "\*\d+([A-Z])?(\.\d+)?(\.ALDY)?"
+        minor_pattern = r"\*\d+([A-Z])?(\.\d+)?(\.ALDY)?"
         minor_match = re.search(minor_pattern, raw_star_allele)
         minor = minor_match.group(0)
 
-        variants_pattern = "\+(rs\d+)"
+        variants_pattern = r"\+(rs\d+)"
         variants = re.findall(variants_pattern, raw_star_allele)
 
-        copy_number_pattern = "x(\d+)"
+        copy_number_pattern = r"x(\d+)"
         copy_number_match = re.search(copy_number_pattern, raw_star_allele)
         if copy_number_match:
             copy_number = int(copy_number_match.group(1))
@@ -48,10 +48,12 @@ class StarAllele:
         if copy_number > 1:
             parsed += f"x{copy_number}"
 
-        return cls(sort_value, raw_star_allele, parsed, major, minor, copy_number, variants)
+        return cls(
+            sort_value, raw_star_allele, parsed, major, minor, copy_number, variants
+        )
 
     @classmethod
-    def is_valid(cls, raw_star_allele):
+    def is_valid(cls, raw_star_allele: str) -> bool:
         fullmatch = re.fullmatch(cls.regex_pattern, raw_star_allele)
 
         if fullmatch:
@@ -59,10 +61,9 @@ class StarAllele:
         else:
             return False
 
-    
     def as_list(self):
         return [self.major] * self.copy_number
-    
+
     def __str__(self):
         return self.raw
 
@@ -81,15 +82,17 @@ class Haplotype:
     separator = "+"
 
     @classmethod
-    def from_string(cls, raw_haplotype):
-        star_alleles = [StarAllele.from_string(star_allele) for star_allele in re.findall(
-            StarAllele.regex_pattern, raw_haplotype)]
+    def from_string(cls, raw_haplotype: str) -> Self:
+        star_alleles = [
+            StarAllele.from_string(star_allele)
+            for star_allele in re.findall(StarAllele.regex_pattern, raw_haplotype)
+        ]
         parsed = cls.separator.join([sa.parsed for sa in sorted(star_alleles)])
         sort_value = min(star_alleles).sort_value
 
         return cls(sort_value, raw_haplotype, parsed, star_alleles)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.raw
 
 
@@ -109,7 +112,7 @@ class Diplotype:
     separator = "/"
 
     @classmethod
-    def from_string(cls, raw_diplotype, filt=None):
+    def from_string(cls, raw_diplotype: str, filt: str = None) -> Self:
         """
         Creates a Diplotype object from a raw string. The raw diplotype string is
         automatically split into haplotypes, which are themselves turned into
@@ -126,21 +129,31 @@ class Diplotype:
 
         # Identify haplotypes and star alleles
         haplotypes = [
-            Haplotype.from_string(haplotype) for haplotype in raw_diplotype.split(cls.separator)
+            Haplotype.from_string(haplotype)
+            for haplotype in raw_diplotype.split(cls.separator)
         ]
 
-        star_alleles = [star_allele for haplotype in haplotypes for star_allele in haplotype.star_alleles]
+        star_alleles = [
+            star_allele
+            for haplotype in haplotypes
+            for star_allele in haplotype.star_alleles
+        ]
 
         # Sort haplotypes and turn them into the final parsed string
         parsed = cls.separator.join(
-            [haplotype.parsed for haplotype in sorted(haplotypes)])
-        
+            [haplotype.parsed for haplotype in sorted(haplotypes)]
+        )
+
         return cls(
-            raw=raw_diplotype, parsed=parsed, filt=filt, haplotypes=haplotypes, star_alleles=star_alleles
+            raw=raw_diplotype,
+            parsed=parsed,
+            filt=filt,
+            haplotypes=haplotypes,
+            star_alleles=star_alleles,
         )
 
     @classmethod
-    def no_call(cls):
+    def no_call(cls) -> Self:
         """
         Creates an instance of Diplotype with "no_call" as the value of its
         "raw", "major" and "minor" attributes.
@@ -148,14 +161,13 @@ class Diplotype:
         no_call_string = "no_call"
         return cls(raw=no_call_string, parsed=no_call_string)
 
-    
     @classmethod
-    def invalid(cls, raw_diplotype):
+    def invalid(cls, raw_diplotype: str) -> Self:
         invalid_string = "invalid"
         return cls(raw=raw_diplotype, parsed=invalid_string)
-    
+
     @classmethod
-    def novel_allele(cls, raw_diplotype, filt=None):
+    def novel_allele(cls, raw_diplotype: str, filt: str = None) -> Self:
         """
         Same functionality as the "from_string" method, except with the "novel"
         property set to True.
@@ -166,15 +178,16 @@ class Diplotype:
         return diplotype
 
     @staticmethod
-    def is_valid(raw_diplotype):
+    def is_valid(raw_diplotype: str) -> bool:
         """
-        Attemtps to fully match the provided raw_diplotype string against the
-        following pattern: "\*\d+.*?/\*\d+.*?$"
-        Returns True only if the whole string matches the pattern, otherwise
-        returns False.
+        Attemtps to fully match the provided raw_diplotype string against a
+        preset regex pattern. Returns True only if the whole string matches the
+        pattern, otherwise returns False.
         """
 
-        haplotype_pattern = "(?:\*\d+(?:[A-Z])?(?:x\d)?(?:\.\w*)?(?:(?:\+\w+)+)?(?:\+)?)+"
+        haplotype_pattern = (
+            r"(?:\*\d+(?:[A-Z])?(?:x\d)?(?:\.\w*)?(?:(?:\+\w+)+)?(?:\+)?)+"
+        )
         diplotype_pattern = f"{haplotype_pattern}/{haplotype_pattern}"
         match = re.fullmatch(diplotype_pattern, raw_diplotype)
         if match:
