@@ -1,0 +1,153 @@
+haplotype	activity_value	function
+*1	1	Normal function
+*1x2	2	Increased function
+*1x3	3	Increased function
+*2	1	Normal function
+*2x2	2	Increased function
+*2x3	3	Increased function
+*3	0	No function
+*3x2	0	No function
+*4	0	No function
+*4x2	0	No function
+*4x3	0	No function
+*5	0	No function
+*6	0	No function
+*6x2	0	No function
+*7	0	No function
+*8	0	No function
+*9	0.5	Decreased function
+*9x2	1	Normal function
+*10	0.25	Decreased function
+*10x2	0.5	Decreased function
+*11	0	No function
+*12	0	No function
+*13	0	No function
+*14	0.5	Decreased function
+*15	0	No function
+*17	0.5	Decreased function
+*17x2	1	Normal function
+*18	0	No function
+*19	0	No function
+*20	0	No function
+*21	0	No function
+*22		Uncertain function
+*23		Uncertain function
+*24		Uncertain function
+*25		Uncertain function
+*26		Uncertain function
+*27	1	Normal function
+*28		Uncertain function
+*29	0.5	Decreased function
+*29x2	1	Normal function
+*30		Uncertain function
+*31	0	No function
+*32		Uncertain function
+*33	1	Normal function
+*34	1	Normal function
+*35	1	Normal function
+*35x2	2	Increased function
+*36	0	No function
+*36x2	0	No function
+*37		Uncertain function
+*38	0	No function
+*39	1	Normal function
+*40	0	No function
+*41	0.5	Decreased function
+*41x2	1	Normal function
+*41x3	1.5	Normal function
+*42	0	No function
+*43		Uncertain function
+*43x2		Uncertain function
+*44	0	No function
+*45	1	Normal function
+*45x2	2	Increased function
+*46	1	Normal function
+*47	0	No function
+*48	1	Normal function
+*49	0.5	Decreased function
+*50	0.5	Decreased function
+*51	0	No function
+*52		Uncertain function
+*53	1	Normal function
+*54	0.5	Decreased function
+*55	0.5	Decreased function
+*56	0	No function
+*57	0	No function
+*58		Uncertain function
+*59	0.5	Decreased function
+*60	0	No function
+*61		Uncertain function
+*62	0	No function
+*63		Uncertain function
+*64		Uncertain function
+*65		Uncertain function
+*68	0	No function
+*69	0	No function
+*70		Uncertain function
+*71		Uncertain function
+*72		Uncertain function
+*73		Uncertain function
+*74		Uncertain function
+*75		Uncertain function
+*81	0	No function
+*82		Uncertain function
+*83		Uncertain function
+*84		Uncertain function
+*85		Uncertain function
+*86		Uncertain function
+*87		Uncertain function
+*88		Uncertain function
+*89		Uncertain function
+*90		Uncertain function
+*91		Uncertain function
+*92	0	No function
+*93		Uncertain function
+*94		Uncertain function
+*95		Uncertain function
+*96	0	No function
+*97		Uncertain function
+*98		Uncertain function
+*99	0	No function
+*100	0	No function
+*101	0	No function
+*102		Uncertain function
+*103		Uncertain function
+*104		Uncertain function
+*105		Uncertain function
+*106		Uncertain function
+*107		Uncertain function
+*108		Uncertain function
+*109		Uncertain function
+*110		Uncertain function
+*111		Uncertain function
+*112		Uncertain function
+*113		Uncertain function
+*114	0	No function
+*115		Uncertain function
+*116		Uncertain function
+*117		Uncertain function
+*118		Uncertain function
+*119		Uncertain function
+*120	0	No function
+*121		Uncertain function
+*122		Uncertain function
+*123		Uncertain function
+*124	0	No function
+*125		Uncertain function
+*126		Uncertain function
+*127		Uncertain function
+*128		Uncertain function
+*129	0	No function
+*130		Uncertain function
+*131		Uncertain function
+*132		Uncertain function
+*133		Uncertain function
+*134		Uncertain function
+*135		Uncertain function
+*136		Uncertain function
+*137		Uncertain function
+*138		Uncertain function
+*139		Uncertain function
+*10+*36	0.25	Decreased function
+*4+*68	0	No function
+*4+*4	0	No function
