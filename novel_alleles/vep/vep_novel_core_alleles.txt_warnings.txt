@@ -1,0 +1,75 @@
+WARNING: Failed to instantiate plugin CADD: 
+ERROR: No CADD files specified
+Tip: Add a file after command, example:
+vep ... --plugin CADD,/FULL_PATH_TO_CADD_FILE/whole_genome_SNVs.tsv.gz
+
+WARNING: Line 1 skipped (rs746803316): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 1 skipped (rs746803316): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 1 skipped (rs746803316): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 1 skipped (rs746803316): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 1 skipped (rs746803316): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 2 skipped (rs3915951): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 2 skipped (rs3915951): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 2 skipped (rs3915951): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 2 skipped (rs3915951): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 2 skipped (rs3915951): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 3 skipped (rs140513104): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 3 skipped (rs140513104): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 3 skipped (rs140513104): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 3 skipped (rs140513104): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 3 skipped (rs140513104): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 4 skipped (rs199535154  ): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 4 skipped (rs199535154  ): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 4 skipped (rs199535154  ): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 4 skipped (rs199535154  ): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 4 skipped (rs199535154  ): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 5 skipped (rs763609904): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 5 skipped (rs763609904): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 5 skipped (rs763609904): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 5 skipped (rs763609904): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 5 skipped (rs763609904): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 6 skipped (rs1135830): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 6 skipped (rs1135830): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 6 skipped (rs1135830): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 6 skipped (rs1135830): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 6 skipped (rs1135830): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 7 skipped (rs755518310): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 7 skipped (rs755518310): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 7 skipped (rs755518310): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 7 skipped (rs755518310): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 7 skipped (rs755518310): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 8 skipped (rs763609904): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 8 skipped (rs763609904): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 8 skipped (rs763609904): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 8 skipped (rs763609904): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 8 skipped (rs763609904): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 9 skipped (rs1135824): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 9 skipped (rs1135824): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 9 skipped (rs1135824): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 9 skipped (rs1135824): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 9 skipped (rs1135824): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 10 skipped (rs28371703): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 10 skipped (rs28371703): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 10 skipped (rs28371703): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 10 skipped (rs28371703): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 10 skipped (rs28371703): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 11 skipped (rs28371704): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 11 skipped (rs28371704): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 11 skipped (rs28371704): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 11 skipped (rs28371704): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 11 skipped (rs28371704): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 12 skipped (rs730882251): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 12 skipped (rs730882251): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 12 skipped (rs730882251): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 12 skipped (rs730882251): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 12 skipped (rs730882251): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 13 skipped (rs28371696): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 13 skipped (rs28371696): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 13 skipped (rs28371696): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 13 skipped (rs28371696): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 13 skipped (rs28371696): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 14 skipped (rs1065852): Chromosome HSCHR22_2_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 14 skipped (rs1065852): Chromosome HSCHR22_3_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 14 skipped (rs1065852): Chromosome HSCHR22_5_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 14 skipped (rs1065852): Chromosome HSCHR22_7_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
+WARNING: Line 14 skipped (rs1065852): Chromosome HSCHR22_8_CTG1 not found in annotation sources or synonyms and could not transform to toplevel
